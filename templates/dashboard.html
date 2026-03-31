@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <!-- Logo for branding -->
+  <div class="text-center mb-4">
+    <img src="{{ url_for('static', filename='images/logo.png') }}"
+         alt="Company Logo" style="height:100px; margin-bottom:15px;">
+    </div>
+<h2>Dashboard</h2>
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card text-bg-primary"><div class="card-body"><h6>Leads</h6><div class="display-6">{{ leads_count }}</div><a class="btn btn-light btn-sm" href="{{ url_for('leads') }}">View</a></div></div></div>
+  <div class="col-md-3"><div class="card text-bg-secondary"><div class="card-body"><h6>Applications</h6><div class="display-6">{{ apps_count }}</div></div></div></div>
+  <div class="col-md-3"><div class="card text-bg-success"><div class="card-body"><h6>COE</h6><div class="display-6">{{ coe_count }}</div></div></div></div>
+  <div class="col-md-3"><div class="card text-bg-info"><div class="card-body"><h6>Visa Grants</h6><div class="display-6">{{ visa_count }}</div></div></div></div>
+</div>
+
+<h3>Total COEs per University</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>University</th>
+            <th>Total COEs</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in coe_summary %}
+        <tr>
+            <td>{{ row.university }}</td>
+            <td>{{ row.total }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<h4>Lead Pipeline</h4>
+<div class="accordion" id="pipeline">
+  {% for key, label, items in pipeline %}
+  <div class="accordion-item">
+    <h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#c-{{ key }}">{{ label }} ({{ items|length }})</button></h2>
+    <div id="c-{{ key }}" class="accordion-collapse collapse">
+      <div class="accordion-body">
+        {% if items %}
+        <table class="table table-sm">
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>University</th><th>Channel partner</th><th></th><th></th></tr></thead>
+          <tbody>
+          {% for lead in items %}
+          <tr><td>{{ lead['name'] }}</td><td>{{ lead['email'] }}</td><td>{{ lead['phone'] }}</td><td>{{ lead['university'] or "Not Assigned" }}</td><td>{{ lead['partner_company'] }}
+          </td>
+              <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('edit_lead', lead_id=lead['id']) }}">Open</a></td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        {% else %}<em>No leads.</em>{% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

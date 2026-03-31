@@ -1,0 +1,1 @@
+-- See app.py init_db for same schema

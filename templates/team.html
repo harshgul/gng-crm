@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Our Team</h2>
+  <div class="row">
+    {% for member in team %}
+    <div class="col-md-3 text-center mb-4">
+      <div class="card h-100 shadow-sm">
+        <img src="{{ url_for('static', filename=member.image) }}"
+             alt="{{ member.name }}" class="card-img-top" style="height:200px; object-fit:cover;">
+        <div class="card-body">
+          <h5 class="card-title">{{ member.name }}</h5>
+          <p class="card-text text-muted">{{ member.role }}</p>
+          <p class="card-text">{{ member.bio }}</p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+

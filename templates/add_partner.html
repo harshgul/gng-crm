@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Add Channel Partner</h3>
+<form method="post">
+  <div class="row g-3">
+    <div class="col-md-6"><label class="form-label">Name</label><input name="name" class="form-control" required></div>
+    <div class="col-md-6"><label class="form-label">Email</label><input name="email" class="form-control"></div>
+    <div class="col-md-6"><label class="form-label">Phone</label><input name="phone" class="form-control"></div>
+    <div class="col-md-6"><label class="form-label">Company</label><input name="company" class="form-control"></div>
+    <div class="col-md-6"><label class="form-label">Location</label><input name="location" class="form-control"></div>
+  </div>
+  <button class="btn btn-primary mt-3">Save</button>
+  <a href="{{ url_for('partners') }}" class="btn btn-secondary mt-3">Cancel</a>
+</form>
+{% endblock %}

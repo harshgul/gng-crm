@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Add Lead</h3>
+<form method="post">
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">Name</label>
+      <input name="name" class="form-control" required>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">Email</label>
+      <input name="email" class="form-control">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">Phone</label>
+      <input name="phone" class="form-control">
+    </div>
+
+    <div class="form-group col-md-6">
+      <label for="partner">Assign Channel Partner</label>
+      <select name="partner_id" id="partner" class="form-control">
+        <option value="">-- None --</option>
+        {% for partner in partners %}
+          <option value="{{ partner.id }}">{{ partner.company }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+        <label for="university">University</label>
+        <select name="university" class="form-control">
+            <option value="">-- Select University --</option>
+            {% for uni in universities %}
+            <option value="{{ uni }}" {% if lead and lead.university == uni %}selected{% endif %}>{{ uni }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">Stage</label>
+      <select name="stage" class="form-select">
+        <option value="new">New</option>
+        <option value="contacted">Contacted</option>
+        <option value="assessment">Assessment</option>
+        <option value="gs">GS</option>
+        <option value="on-hold">On-Hold</option>
+        <option value="offer">Offer</option>
+        <option value="ucol">UCOL</option>
+        <option value="coe">COE</option>
+        <option value="visa-grant">Visa Grant</option>
+      </select>
+    </div>
+
+    <div class="col-12">
+      <label class="form-label">Notes</label>
+      <textarea name="notes" rows="3" class="form-control"></textarea>
+    </div>
+  </div>
+  
+
+
+  <button class="btn btn-primary mt-3">Save</button>
+  <a href="{{ url_for('leads') }}" class="btn btn-secondary mt-3">Cancel</a>
+</form>
+{% endblock %}
+

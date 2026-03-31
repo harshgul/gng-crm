@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+      <!-- Profile Picture -->
+      <img src="{{ url_for('static', filename='images/developer.jpg') }}"
+           alt="Developer Picture"
+           class="rounded-circle shadow mb-3"
+           width="180" height="180">
+
+      <!-- Name and Role -->
+      <h2 class="fw-bold">Harsh Guleria</h2>
+      <p class="text-muted">Full-Stack Developer & Study Abroad Consultant</p>
+
+      <!-- Short Bio -->
+      <p class="mt-3">
+        I’m the developer behind this CRM system, created to streamline
+        student recruitment and channel partner management for
+        <strong>Guleria & Guleria Consultants</strong>.
+        With experience in Python, Flask, and automation, I build
+        solutions that are practical and scalable for education consulting businesses.
+      </p>
+
+      <!-- Portfolio / Links -->
+      <div class="mt-4">
+        <a href="https://www.harshguleria.net" target="_blank" class="btn btn-primary me-2">
+          🌐 Portfolio Website
+        </a>
+       
+        <a href="mailto:international@gngabroad.com" class="btn btn-success ms-2">
+          📧 Contact Me
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

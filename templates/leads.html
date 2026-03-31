@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    /* Ensures space below fixed navbar */
+    body {
+        padding-top: 90px !important;
+    }
+
+    /* Fixed search bar */
+    .sticky-search {
+        position: sticky;
+        top: 70px; /* adjust depending on navbar height */
+        z-index: 1050;
+    }
+</style>
+
+
+
+<div class="container mt-4">
+    <h2 class="mb-4">Leads Management</h2>
+
+    <!-- Search Bar -->
+    <div class="sticky-search">
+    <form method="get" action="{{ url_for('leads') }}" 
+      class="mb-3 d-flex bg-white p-2 border rounded shadow-sm">
+
+    <!-- Search -->
+    <input type="text" name="q" class="form-control me-2"
+           placeholder="Search by name, email, phone, or company"
+           value="{{ search_query }}">
+
+    <!-- University -->
+    <select name="university" class="form-select me-2">
+        <option value="">All Universities</option>
+        {% for uni in universities %}
+            <option value="{{ uni }}"
+                {% if uni == selected_university %}selected{% endif %}>
+                {{ uni }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <!-- Stage Filter ✅ NEW -->
+    <select name="stage" class="form-select me-2">
+        <option value="">All Stages</option>
+        <option value="new" {% if selected_stage == "new" %}selected{% endif %}>New</option>
+        <option value="contacted" {% if selected_stage == "contacted" %}selected{% endif %}>Contacted</option>
+        <option value="assessment" {% if selected_stage == "assessment" %}selected{% endif %}>Assessment</option>
+        <option value="gs" {% if selected_stage == "gs" %}selected{% endif %}>GS</option>
+        <option value="on-hold" {% if selected_stage == "on-hold" %}selected{% endif %}>On Hold</option>
+        <option value="offer" {% if selected_stage == "offer" %}selected{% endif %}>Offer</option>
+        <option value="ucol" {% if selected_stage == "ucol" %}selected{% endif %}>Ucol</option>
+        <option value="coe" {% if selected_stage == "coe" %}selected{% endif %}>COE</option>
+        <option value="visa-grant" {% if selected_stage == "visa-grant" %}selected{% endif %}>Visa Grant</option>
+    </select>
+
+    <!-- Button -->
+    <button type="submit" class="btn btn-primary">Filter</button>
+
+    {% if search_query or selected_university or selected_stage %}
+        <a href="{{ url_for('leads') }}" class="btn btn-secondary ms-2">Reset</a>
+    {% endif %}
+</form>
+</div>
+
+    <!-- Add New Lead -->
+    <div class="mb-3">
+        <a href="{{ url_for('add_lead') }}" class="btn btn-success">+ Add Lead</a>
+    </div>
+
+    <!-- Leads Table -->
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>S.No.</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Stage</th>
+                <th>Added On</th>
+                <th>Assigned Partner</th>
+                <th>University</th>
+                <th>Notes</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody id="lead-table-body">
+            {% for lead in leads %}
+            <tr id="lead-{{ lead.id }}">
+                <td>{{ loop.index }}</td>
+                <td>{{ lead.name }}</td>
+                <td>{{ lead.email }}</td>
+                <td>{{ lead.phone }}</td>
+                <td>{{ lead.stage }}</td>
+                <td>{{ lead.added_on }}</td>
+                <td>{{ lead.partner_company }}</td>
+                <td>{{ lead.university or "Not Assigned" }}</td>
+                <td>{{ lead.notes or '' }}</td>
+                <td>
+                    <a href="{{ url_for('edit_lead', lead_id=lead.id) }}" class="btn btn-warning btn-sm">Edit</a>
+
+                    <a href="{{ url_for('delete_lead', lead_id=lead.id) }}"
+                       class="btn btn-danger btn-sm delete-btn"
+                       data-lead-id="{{ lead.id }}"
+                       onclick="return confirm('Are you sure you want to delete this lead?')">
+                       Delete
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</div>
+
+<!-- SCROLL SAVE/RESTORE SCRIPT -->
+<script>
+    // Save scroll position before delete
+    document.querySelectorAll(".delete-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+            localStorage.setItem("leads_scroll", window.scrollY);
+        });
+    });
+
+    // Restore scroll position after reload
+    window.addEventListener("load", function () {
+        let scrollPos = localStorage.getItem("leads_scroll");
+        if (scrollPos !== null) {
+            window.scrollTo(0, parseInt(scrollPos));
+            localStorage.removeItem("leads_scroll");
+        }
+    });
+</script>
+
+{% endblock %}
