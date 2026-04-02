@@ -1,3 +1,7 @@
+from flask_sqlalchemy import SQLAlchemy
+import os
+
+db = SQLAlchemy()
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import os
@@ -15,6 +19,11 @@ UNIVERSITIES = [
 
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"xlsx", "xls"}
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') or 'sqlite:///leads.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app)
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
