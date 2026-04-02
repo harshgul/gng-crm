@@ -229,5 +229,48 @@ def import_leads():
     conn.close()
     return redirect(url_for("leads"))
 
+def create_tables():
+    conn = get_conn()
+    c = conn.cursor()
+
+    # Create users table
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        role TEXT,
+        full_name TEXT
+    );
+    """)
+
+    # Create leads table
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS leads (
+        id SERIAL PRIMARY KEY,
+        name TEXT,
+        email TEXT,
+        phone TEXT,
+        stage TEXT,
+        notes TEXT,
+        university TEXT
+    );
+    """)
+
+    # Create default admin if not exists
+    c.execute("SELECT * FROM users WHERE username='admin'")
+    if not c.fetchone():
+        c.execute("""
+            INSERT INTO users (username, password, role, full_name)
+            VALUES ('admin', 'admin123', 'admin', 'Admin User')
+        """)
+
+    conn.commit()
+    conn.close()
+
+
+# 🔥 RUN THIS ON STARTUP
+create_tables()
+
 if __name__ == "__main__":
     app.run()
