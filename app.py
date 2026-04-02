@@ -1,8 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy
-import os
-
-db = SQLAlchemy()
 from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import os
 import psycopg2
@@ -10,6 +7,22 @@ from psycopg2.extras import RealDictCursor
 from urllib.parse import urlparse
 from werkzeug.utils import secure_filename
 import pandas as pd
+
+# ✅ STEP 1: Create app FIRST
+app = Flask(__name__)
+app.secret_key = "supersecretkey"
+
+# ✅ STEP 2: Config
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') or 'sqlite:///leads.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# ✅ STEP 3: Initialize DB (FIXED TYPO)
+db = SQLAlchemy(app)
+
+# ✅ STEP 4: Login Manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
 
 UNIVERSITIES = [
     "APIC","CQU","Flinders","Macquarie University","QUT","Swinburne",
@@ -20,19 +33,9 @@ UNIVERSITIES = [
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"xlsx", "xls"}
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') or 'sqlite:///leads.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db.init_app(app)
 
-app = Flask(__name__)
-app.secret_key = "supersecretkey"
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = "login"
 
 # ✅ PostgreSQL Connection
 def get_conn(dict_cursor=False):
