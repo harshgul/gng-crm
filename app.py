@@ -35,8 +35,10 @@ def get_conn(dict_cursor=False):
     )
 
 # 👤 USER CLASS
+from flask_login import UserMixin
+
 class User(UserMixin):
-    def init(self, id, username, role, full_name):
+    def __init__(self, id, username, role, full_name):
         self.id = id
         self.username = username
         self.role = role
