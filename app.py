@@ -221,6 +221,31 @@ def partners():
 
     return render_template("partners.html", partners=partners)
 
+@app.route("/add-partner", methods=["GET", "POST"])
+@login_required
+def add_partner():
+    if request.method == "POST":
+        name = request.form.get("name")
+        email = request.form.get("email")
+        phone = request.form.get("phone")
+        company = request.form.get("company")
+        location = request.form.get("location")
+
+        conn = get_conn()
+        c = conn.cursor()
+
+        c.execute("""
+            INSERT INTO partners (name, email, phone, company, location)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (name, email, phone, company, location))
+
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for("partners"))
+
+    return render_template("add_partner.html")
+
 # 👥 TEAM / DEV
 @app.route("/team")
 @login_required
