@@ -1,25 +1,15 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from urllib.parse import urlparse
-from werkzeug.utils import secure_filename
 import pandas as pd
 
-# ✅ STEP 1: Create app FIRST
-app = Flask(__name__)
+app = Flask(name)
 app.secret_key = "supersecretkey"
 
-# ✅ STEP 2: Config
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') or 'sqlite:///leads.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# ✅ STEP 3: Initialize DB (FIXED TYPO)
-db = SQLAlchemy(app)
-
-# ✅ STEP 4: Login Manager
+# LOGIN SETUP
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
@@ -30,19 +20,9 @@ UNIVERSITIES = [
     "VU (Brisbane/Sydney)","MIT","Curtin","Danford","Notre Dame","Other"
 ]
 
-UPLOAD_FOLDER = "uploads"
-ALLOWED_EXTENSIONS = {"xlsx", "xls"}
-
-
-
-
-
-# ✅ PostgreSQL Connection
+# ✅ DATABASE CONNECTION
 def get_conn(dict_cursor=False):
     db_url = os.getenv("DATABASE_URL")
-    if not db_url:
-        raise Exception("DATABASE_URL not set")
-
     result = urlparse(db_url)
 
     return psycopg2.connect(
@@ -56,7 +36,7 @@ def get_conn(dict_cursor=False):
 
 # 👤 USER CLASS
 class User(UserMixin):
-    def __init__(self, id, username, role, full_name):
+    def init(self, id, username, role, full_name):
         self.id = id
         self.username = username
         self.role = role
@@ -69,10 +49,12 @@ def load_user(user_id):
     c.execute("SELECT id, username, role, full_name FROM users WHERE id=%s", (user_id,))
     row = c.fetchone()
     conn.close()
+
     if row:
         return User(id=row[0], username=row[1], role=row[2], full_name=row[3])
     return None
 
+# 🔐 AUTH ROUTES
 @app.route("/")
 def home():
     return redirect(url_for("login"))
@@ -111,16 +93,16 @@ def dashboard():
     conn = get_conn(dict_cursor=True)
     c = conn.cursor()
 
-    c.execute("SELECT COUNT(*) as cnt FROM leads")
+    c.execute("SELECT COUNT() as cnt FROM leads")
     leads_count = c.fetchone()["cnt"]
 
-    c.execute("SELECT COUNT(*) as cnt FROM leads WHERE stage IN ('offer','coe','visa-grant')")
+    c.execute("SELECT COUNT() as cnt FROM leads WHERE stage IN ('offer','coe','visa-grant')")
     apps_count = c.fetchone()["cnt"]
 
-    c.execute("SELECT COUNT(*) as cnt FROM leads WHERE stage='coe'")
+    c.execute("SELECT COUNT() as cnt FROM leads WHERE stage='coe'")
     coe_count = c.fetchone()["cnt"]
 
-    c.execute("SELECT COUNT(*) as cnt FROM leads WHERE stage='visa-grant'")
+    c.execute("SELECT COUNT() as cnt FROM leads WHERE stage='visa-grant'")
     visa_count = c.fetchone()["cnt"]
 
     conn.close()
@@ -141,7 +123,14 @@ def leads():
     c.execute("SELECT * FROM leads ORDER BY id ASC")
     leads = c.fetchall()
     conn.close()
-    return render_template("leads.html", leads=leads, universities = UNIVERSITIES )
+
+    return render_template("leads.html",
+        leads=leads,
+        universities=UNIVERSITIES,
+        search_query="",
+        selected_university="",
+        selected_stage=""
+    )
 
 # ➕ ADD LEAD
 @app.route("/add_lead", methods=["GET", "POST"])
@@ -167,17 +156,15 @@ def add_lead():
 
         conn.commit()
         conn.close()
-
         return redirect(url_for("leads"))
 
     return render_template("add_lead.html", universities=UNIVERSITIES)
 
-
 # ✏️ EDIT LEAD
-@app.route("/edit_lead/<int:id>", methods=["GET", "POST"])
+@app.route("/edit_lead/int:id", methods=["GET", "POST"])
 @login_required
 def edit_lead(id):
-    conn = get_conn()
+    conn = get_conn(dict_cursor=True)
     c = conn.cursor()
 
     if request.method == "POST":
@@ -201,15 +188,14 @@ def edit_lead(id):
         conn.close()
         return redirect(url_for("leads"))
 
-    # GET request (load form)
     c.execute("SELECT * FROM leads WHERE id=%s", (id,))
     lead = c.fetchone()
     conn.close()
 
     return render_template("edit_lead.html", lead=lead, universities=UNIVERSITIES)
 
-# ❌ DELETE
-@app.route("/delete_lead/<int:id>")
+# ❌ DELETE LEAD
+@app.route("/delete_lead/int:id")
 @login_required
 def delete_lead(id):
     conn = get_conn()
@@ -218,25 +204,33 @@ def delete_lead(id):
     conn.commit()
     conn.close()
     return redirect(url_for("leads"))
-#partners
+
+# 🤝 PARTNERS
 @app.route("/partners")
 @login_required
 def partners():
-    return render_template("partners.html")
+    conn = get_conn(dict_cursor=True)
+    c = conn.cursor()
 
-#teams
+    c.execute("SELECT * FROM partners ORDER BY id ASC")
+    partners = c.fetchall()
+
+    conn.close()
+
+    return render_template("partners.html", partners=partners)
+
+# 👥 TEAM / DEV
 @app.route("/team")
 @login_required
 def team():
     return render_template("team.html")
 
-#developer
 @app.route("/developer")
 @login_required
 def developer():
     return render_template("developer.html")
 
-# 📥 IMPORT
+# 📥 IMPORT LEADS
 @app.route("/import_leads", methods=["POST"])
 @login_required
 def import_leads():
@@ -248,25 +242,26 @@ def import_leads():
 
     for _, row in df.iterrows():
         c.execute("""
-            INSERT INTO leads (name,email,phone,stage,notes)
-            VALUES (%s,%s,%s,%s,%s)
+            INSERT INTO leads (name,email,phone,stage,notes,university)
+            VALUES (%s,%s,%s,%s,%s,%s)
         """, (
             row.get("name"),
             row.get("email"),
             row.get("phone"),
             row.get("stage"),
-            row.get("notes", "")
+            row.get("notes", ""),
+            row.get("university", "")
         ))
 
     conn.commit()
     conn.close()
     return redirect(url_for("leads"))
 
+# 🛠 CREATE TABLES
 def create_tables():
     conn = get_conn()
     c = conn.cursor()
 
-    # Create users table
     c.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -277,7 +272,6 @@ def create_tables():
     );
     """)
 
-    # Create leads table
     c.execute("""
     CREATE TABLE IF NOT EXISTS leads (
         id SERIAL PRIMARY KEY,
@@ -290,7 +284,18 @@ def create_tables():
     );
     """)
 
-    # Create default admin if not exists
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS partners (
+        id SERIAL PRIMARY KEY,
+        name TEXT,
+        email TEXT,
+        phone TEXT,
+        company TEXT,
+        location TEXT,
+        added_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+
     c.execute("SELECT * FROM users WHERE username='admin'")
     if not c.fetchone():
         c.execute("""
@@ -301,9 +306,7 @@ def create_tables():
     conn.commit()
     conn.close()
 
-
-# 🔥 RUN THIS ON STARTUP
 create_tables()
 
-if __name__ == "__main__":
-    app.run()
+if name == "main":
+    app.run(debug=True)
