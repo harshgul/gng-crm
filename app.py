@@ -197,7 +197,7 @@ def edit_lead(id):
     return render_template("edit_lead.html", lead=lead, universities=UNIVERSITIES)
 
 # ❌ DELETE LEAD
-@app.route("/delete_lead/int:id")
+@app.route("/delete_lead/<int:id>")
 @login_required
 def delete_lead(id):
     conn = get_conn()
@@ -252,10 +252,6 @@ def add_partner():
 def team():
     return render_template("team.html")
 
-@app.route("/developer")
-@login_required
-def developer():
-    return render_template("developer.html")
 
 # 📥 IMPORT LEADS
 @app.route("/import_leads", methods=["POST"])
