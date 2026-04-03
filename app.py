@@ -6,7 +6,7 @@ from psycopg2.extras import RealDictCursor
 from urllib.parse import urlparse
 import pandas as pd
 
-app = Flask(name)
+app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
 # LOGIN SETUP
