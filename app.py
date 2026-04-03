@@ -308,5 +308,5 @@ def create_tables():
 
 create_tables()
 
-if name == "main":
+if __name__ == "__main__":
     app.run(debug=True)
