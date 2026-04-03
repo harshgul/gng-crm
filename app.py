@@ -95,7 +95,7 @@ def dashboard():
     conn = get_conn(dict_cursor=True)
     c = conn.cursor()
 
-    c.execute("SELECT COUNT() as cnt FROM leads")
+    c.execute("SELECT COUNT(*) as cnt FROM leads")
     leads_count = c.fetchone()["cnt"]
 
     c.execute("SELECT COUNT() as cnt FROM leads WHERE stage IN ('offer','coe','visa-grant')")
