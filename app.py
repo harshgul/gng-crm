@@ -98,13 +98,13 @@ def dashboard():
     c.execute("SELECT COUNT(*) as cnt FROM leads")
     leads_count = c.fetchone()["cnt"]
 
-    c.execute("SELECT COUNT() as cnt FROM leads WHERE stage IN ('offer','coe','visa-grant')")
+    c.execute("SELECT COUNT(*) as cnt FROM leads WHERE stage IN ('offer','coe','visa-grant')")
     apps_count = c.fetchone()["cnt"]
 
-    c.execute("SELECT COUNT() as cnt FROM leads WHERE stage='coe'")
+    c.execute("SELECT COUNT(*) as cnt FROM leads WHERE stage='coe'")
     coe_count = c.fetchone()["cnt"]
 
-    c.execute("SELECT COUNT() as cnt FROM leads WHERE stage='visa-grant'")
+    c.execute("SELECT COUNT(*) as cnt FROM leads WHERE stage='visa-grant'")
     visa_count = c.fetchone()["cnt"]
 
     conn.close()
