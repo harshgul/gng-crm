@@ -221,7 +221,7 @@ def partners():
     conn.close()
 
     return render_template("partners.html", partners=partners)
-
+#add partner
 @app.route("/add-partner", methods=["GET", "POST"])
 @login_required
 def add_partner():
@@ -246,6 +246,51 @@ def add_partner():
         return redirect(url_for("partners"))
 
     return render_template("add_partner.html")
+
+#edit partner
+@app.route("/edit_partner/<int:id>", methods=["GET", "POST"])
+@login_required
+def edit_partner(id):
+    conn = get_conn(dict_cursor=True)
+    c = conn.cursor()
+
+    if request.method == "POST":
+        data = request.form
+
+        c.execute("""
+            UPDATE partners
+            SET name=%s, email=%s, phone=%s, company=%s
+            WHERE id=%s
+        """, (
+            data.get("name"),
+            data.get("email"),
+            data.get("phone"),
+            data.get("company"),
+            id
+        ))
+
+        conn.commit()
+        conn.close()
+        return redirect(url_for("partners"))
+
+    c.execute("SELECT * FROM partners WHERE id=%s", (id,))
+    partner = c.fetchone()
+    conn.close()
+
+    return render_template("edit_partner.html", partner=partner)
+
+#delete partner 
+@app.route("/delete_partner/<int:id>")
+@login_required
+def delete_partner(id):
+    conn = get_conn()
+    c = conn.cursor()
+
+    c.execute("DELETE FROM partners WHERE id = %s", (id,))
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("partners"))
 
 # 👥 TEAM / DEV
 @app.route("/team")
