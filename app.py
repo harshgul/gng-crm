@@ -174,7 +174,7 @@ def add_lead():
 # ✏️ EDIT LEAD
 @app.route("/edit_lead/<int:id>", methods=["POST"])
 @login_required
-def edit_lead(id=lead.id):
+def edit_lead(id):
     data = request.form
     conn = get_conn()
     c = conn.cursor()
@@ -199,7 +199,7 @@ def edit_lead(id=lead.id):
 # ❌ DELETE
 @app.route("/delete_lead/<int:id>")
 @login_required
-def delete_lead(id=lead.id):
+def delete_lead(id):
     conn = get_conn()
     c = conn.cursor()
     c.execute("DELETE FROM leads WHERE id=%s", (id,))
