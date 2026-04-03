@@ -162,8 +162,9 @@ def add_lead():
 
     return render_template("add_lead.html", universities=UNIVERSITIES)
 
+
 # ✏️ EDIT LEAD
-@app.route("/edit_lead/int:id", methods=["GET", "POST"])
+@app.route("/edit_lead/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit_lead(id):
     conn = get_conn(dict_cursor=True)
