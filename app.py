@@ -141,17 +141,15 @@ def leads():
     c.execute("SELECT * FROM leads ORDER BY id ASC")
     leads = c.fetchall()
     conn.close()
-    return render_template("leads.html", leads=leads)
+    return render_template("leads.html", leads=leads, universities = UNIVERSITIES )
 
-@app.route("/add_lead", methods=["GET"])
-@login_required
-def add_lead_page():
-    return render_template("add_lead.html", universities=UNIVERSITIES)
+
 # ➕ ADD LEAD
-@app.route("/add_lead", methods=["POST"])
+@app.route("/add_lead", methods=["GET" , "POST"])
 @login_required
 def add_lead():
-    data = request.form
+    if request.method =="POST":
+        data =request.form 
     conn = get_conn()
     c = conn.cursor()
 
@@ -170,15 +168,18 @@ def add_lead():
     conn.commit()
     conn.close()
     return redirect(url_for("leads"))
+return render.template("add_lead.html", universities = UNIVERSITIES ) 
 
 # ✏️ EDIT LEAD
-@app.route("/edit_lead/<int:id>", methods=["POST"])
+@app.route("/edit_lead/<int:id>", methods=["GET" , "POST"])
 @login_required
 def edit_lead(id):
-    data = request.form
+    
     conn = get_conn()
     c = conn.cursor()
 
+    if request.method == "POST" :
+    data = request.form
     c.execute("""
         UPDATE leads SET name=%s,email=%s,phone=%s,stage=%s,notes=%s,university=%s
         WHERE id=%s
@@ -196,6 +197,13 @@ def edit_lead(id):
     conn.close()
     return redirect(url_for("leads"))
 
+c.execute ("SELECT * FROM leads WHERE id=%s", (id,))
+lead = c.fetchone()
+conn.close()
+
+return render.template("edit_lead.html", lead=lead , universities- UNIVERSITIES ) 
+
+
 # ❌ DELETE
 @app.route("/delete_lead/<int:id>")
 @login_required
@@ -206,6 +214,23 @@ def delete_lead(id):
     conn.commit()
     conn.close()
     return redirect(url_for("leads"))
+#partners
+@app.route("/partners")
+@login_required
+def partners():
+    return render_template("partners.html")
+
+#teams
+@app.route("/team")
+@login_required
+def team():
+    return render_template("team.html")
+
+#developer
+@app.route("/developer")
+@login_required
+def developer():
+    return render_template("developer.html")
 
 # 📥 IMPORT
 @app.route("/import_leads", methods=["POST"])
