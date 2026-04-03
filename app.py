@@ -149,7 +149,7 @@ def leads():
 @login_required
 def add_lead():
     if request.method =="POST":
-        data =request.form 
+        data = request.form 
     conn = get_conn()
     c = conn.cursor()
 
@@ -174,12 +174,13 @@ return render.template("add_lead.html", universities = UNIVERSITIES )
 @app.route("/edit_lead/<int:id>", methods=["GET" , "POST"])
 @login_required
 def edit_lead(id):
+  if request.method == "POST":
+      data = request.form
     
     conn = get_conn()
     c = conn.cursor()
 
-    if request.method == "POST" :
-    data = request.form
+  
     c.execute("""
         UPDATE leads SET name=%s,email=%s,phone=%s,stage=%s,notes=%s,university=%s
         WHERE id=%s
