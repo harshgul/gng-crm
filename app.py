@@ -143,67 +143,70 @@ def leads():
     conn.close()
     return render_template("leads.html", leads=leads, universities = UNIVERSITIES )
 
-
 # ➕ ADD LEAD
-@app.route("/add_lead", methods=["GET" , "POST"])
+@app.route("/add_lead", methods=["GET", "POST"])
 @login_required
 def add_lead():
-    if request.method =="POST":
-        data = request.form 
-    conn = get_conn()
-    c = conn.cursor()
+    if request.method == "POST":
+        data = request.form
 
-    c.execute("""
-        INSERT INTO leads (name,email,phone,stage,notes,university)
-        VALUES (%s,%s,%s,%s,%s,%s)
-    """, (
-        data.get("name"),
-        data.get("email"),
-        data.get("phone"),
-        data.get("stage"),
-        data.get("notes"),
-        data.get("university")
-    ))
+        conn = get_conn()
+        c = conn.cursor()
 
-    conn.commit()
-    conn.close()
-    return redirect(url_for("leads"))
-return render.template("add_lead.html", universities = UNIVERSITIES ) 
+        c.execute("""
+            INSERT INTO leads (name,email,phone,stage,notes,university)
+            VALUES (%s,%s,%s,%s,%s,%s)
+        """, (
+            data.get("name"),
+            data.get("email"),
+            data.get("phone"),
+            data.get("stage"),
+            data.get("notes"),
+            data.get("university")
+        ))
+
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for("leads"))
+
+    return render_template("add_lead.html", universities=UNIVERSITIES)
+
 
 # ✏️ EDIT LEAD
-@app.route("/edit_lead/<int:id>", methods=["GET" , "POST"])
+@app.route("/edit_lead/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit_lead(id):
-  if request.method == "POST":
-      data = request.form
-    
     conn = get_conn()
     c = conn.cursor()
 
-  
-    c.execute("""
-        UPDATE leads SET name=%s,email=%s,phone=%s,stage=%s,notes=%s,university=%s
-        WHERE id=%s
-    """, (
-        data.get("name"),
-        data.get("email"),
-        data.get("phone"),
-        data.get("stage"),
-        data.get("notes"),
-        data.get("university"),
-        id
-    ))
+    if request.method == "POST":
+        data = request.form
 
-    conn.commit()
+        c.execute("""
+            UPDATE leads 
+            SET name=%s,email=%s,phone=%s,stage=%s,notes=%s,university=%s
+            WHERE id=%s
+        """, (
+            data.get("name"),
+            data.get("email"),
+            data.get("phone"),
+            data.get("stage"),
+            data.get("notes"),
+            data.get("university"),
+            id
+        ))
+
+        conn.commit()
+        conn.close()
+        return redirect(url_for("leads"))
+
+    # GET request (load form)
+    c.execute("SELECT * FROM leads WHERE id=%s", (id,))
+    lead = c.fetchone()
     conn.close()
-    return redirect(url_for("leads"))
 
-c.execute ("SELECT * FROM leads WHERE id=%s", (id,))
-lead = c.fetchone()
-conn.close()
-
-return render.template("edit_lead.html", lead=lead , universities- UNIVERSITIES ) 
-
+    return render_template("edit_lead.html", lead=lead, universities=UNIVERSITIES)
 
 # ❌ DELETE
 @app.route("/delete_lead/<int:id>")
