@@ -95,25 +95,50 @@ def dashboard():
     conn = get_conn(dict_cursor=True)
     c = conn.cursor()
 
-    c.execute("SELECT COUNT(*) as cnt FROM leads")
-    leads_count = c.fetchone()["cnt"]
+    # ✅ Total Leads
+    c.execute("SELECT COUNT(*) AS total FROM leads")
+    total_leads = c.fetchone()["total"]
 
-    c.execute("SELECT COUNT(*) as cnt FROM leads WHERE stage IN ('offer','coe','visa-grant')")
-    apps_count = c.fetchone()["cnt"]
+    # ✅ Applications (you can define this as stage = 'offer' or 'assessment')
+    c.execute("SELECT COUNT(*) AS total FROM leads WHERE stage IN ('offer','ucol','coe','visa-grant')")
+    applications = c.fetchone()["total"]
 
-    c.execute("SELECT COUNT(*) as cnt FROM leads WHERE stage='coe'")
-    coe_count = c.fetchone()["cnt"]
+    # ✅ COE Count
+    c.execute("SELECT COUNT(*) AS total FROM leads WHERE stage='coe'")
+    coe = c.fetchone()["total"]
 
-    c.execute("SELECT COUNT(*) as cnt FROM leads WHERE stage='visa-grant'")
-    visa_count = c.fetchone()["cnt"]
+    # ✅ Visa Grants
+    c.execute("SELECT COUNT(*) AS total FROM leads WHERE stage='visa-grant'")
+    visa = c.fetchone()["total"]
+
+    # ✅ COE per University
+    c.execute("""
+        SELECT university, COUNT(*) AS total
+        FROM leads
+        WHERE stage='coe'
+        GROUP BY university
+        ORDER BY total DESC
+    """)
+    coe_university = c.fetchall()
+
+    # ✅ Pipeline Count
+    c.execute("""
+        SELECT stage, COUNT(*) AS total
+        FROM leads
+        GROUP BY stage
+    """)
+    pipeline_data = c.fetchall()
 
     conn.close()
 
-    return render_template("dashboard.html",
-        leads_count=leads_count,
-        apps_count=apps_count,
-        coe_count=coe_count,
-        visa_count=visa_count
+    return render_template(
+        "dashboard.html",
+        total_leads=total_leads,
+        applications=applications,
+        coe=coe,
+        visa=visa,
+        coe_university=coe_university,
+        pipeline_data=pipeline_data
     )
 
 # 📋 LEADS
