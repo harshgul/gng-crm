@@ -160,7 +160,7 @@ def add_lead():
         conn.close()
         return redirect(url_for("leads"))
 
-    return render_template("add_lead.html", universities=UNIVERSITIES)
+    return render_template("add_lead.html", universities=UNIVERSITIES,partners=partners)
 
 
 # ✏️ EDIT LEAD
@@ -193,9 +193,12 @@ def edit_lead(id):
 
     c.execute("SELECT * FROM leads WHERE id=%s", (id,))
     lead = c.fetchone()
+    # fetch partners
+    c.execute("SELECT id, name FROM partners ORDER BY name ASC")
+    partners = c.fetchall()
     conn.close()
 
-    return render_template("edit_lead.html", lead=lead, universities=UNIVERSITIES)
+    return render_template("edit_lead.html", lead=lead, universities=UNIVERSITIES,partners=partners)
 
 # ❌ DELETE LEAD
 @app.route("/delete_lead/<int:id>")
