@@ -84,6 +84,7 @@
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Stage</th>
+                <th>Partner</th>
                 <th>University</th>
                 <th>Notes</th>
                 <th>Actions</th>
@@ -98,6 +99,7 @@
                 <td>{{ lead["email"] }}</td>
                 <td>{{ lead["phone"] }}</td>
                 <td>{{ lead["stage"] }}</td>
+                <td>{{ lead.partner_name or "Direct" }}</td>
                 <td>{{ lead["university"] or "Not Assigned" }}</td>
                 <td>{{ lead["notes"] or '' }}</td>
                 <td>
