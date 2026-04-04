@@ -122,7 +122,12 @@ def dashboard():
 def leads():
     conn = get_conn(dict_cursor=True)
     c = conn.cursor()
-    c.execute("SELECT * FROM leads ORDER BY id ASC")
+    c.execute("""
+    SELECT leads.*, partners.name AS partner_name, partners.company AS partner_company
+    FROM leads
+    LEFT JOIN partners ON leads.partner_id = partners.id
+    ORDER BY leads.id ASC
+""")
     leads = c.fetchall()
     conn.close()
 
@@ -176,7 +181,7 @@ def edit_lead(id):
 
         c.execute("""
             UPDATE leads 
-            SET name=%s,email=%s,phone=%s,stage=%s,notes=%s,university=%s
+            SET name=%s,email=%s,phone=%s,stage=%s,notes=%s,university=%s, partner_id=%s
             WHERE id=%s
         """, (
             data.get("name"),
@@ -185,6 +190,7 @@ def edit_lead(id):
             data.get("stage"),
             data.get("notes"),
             data.get("university"),
+            data.get("partner_id"),
             id
         ))
 
