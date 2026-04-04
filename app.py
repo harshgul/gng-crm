@@ -269,13 +269,14 @@ def edit_partner(id):
 
         c.execute("""
             UPDATE partners
-            SET name=%s, email=%s, phone=%s, company=%s
+            SET name=%s, email=%s, phone=%s, company=%s , location=%s 
             WHERE id=%s
         """, (
             data.get("name"),
             data.get("email"),
             data.get("phone"),
             data.get("company"),
+            data.get("location"),
             id
         ))
 
