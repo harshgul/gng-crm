@@ -145,15 +145,16 @@ def add_lead():
         c = conn.cursor()
 
         c.execute("""
-            INSERT INTO leads (name,email,phone,stage,notes,university)
-            VALUES (%s,%s,%s,%s,%s,%s)
+            INSERT INTO leads (name,email,phone,stage,notes,university,partner_id)
+            VALUES (%s,%s,%s,%s,%s,%s,%s)
         """, (
             data.get("name"),
             data.get("email"),
             data.get("phone"),
             data.get("stage"),
             data.get("notes"),
-            data.get("university")
+            data.get("university"),
+            data.get("partner_id")
         ))
 
         conn.commit()
