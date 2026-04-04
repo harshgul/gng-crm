@@ -95,51 +95,66 @@ def dashboard():
     conn = get_conn(dict_cursor=True)
     c = conn.cursor()
 
-    # ✅ Total Leads
+    # ✅ Counts
     c.execute("SELECT COUNT(*) AS total FROM leads")
-    total_leads = c.fetchone()["total"]
+    leads_count = c.fetchone()["total"]
 
-    # ✅ Applications (you can define this as stage = 'offer' or 'assessment')
     c.execute("SELECT COUNT(*) AS total FROM leads WHERE stage IN ('offer','ucol','coe','visa-grant')")
-    applications = c.fetchone()["total"]
+    apps_count = c.fetchone()["total"]
 
-    # ✅ COE Count
     c.execute("SELECT COUNT(*) AS total FROM leads WHERE stage='coe'")
-    coe = c.fetchone()["total"]
+    coe_count = c.fetchone()["total"]
 
-    # ✅ Visa Grants
     c.execute("SELECT COUNT(*) AS total FROM leads WHERE stage='visa-grant'")
-    visa = c.fetchone()["total"]
+    visa_count = c.fetchone()["total"]
 
-    # ✅ COE per University
+    # ✅ COE Summary
     c.execute("""
         SELECT university, COUNT(*) AS total
         FROM leads
         WHERE stage='coe'
         GROUP BY university
-        ORDER BY total DESC
     """)
-    coe_university = c.fetchall()
+    coe_summary = c.fetchall()
 
-    # ✅ Pipeline Count
-    c.execute("""
-        SELECT stage, COUNT(*) AS total
-        FROM leads
-        GROUP BY stage
-    """)
-    pipeline_data = c.fetchall()
+    # ✅ PIPELINE (THIS IS THE IMPORTANT PART)
+    stages = [
+        ('new', 'New'),
+        ('contacted', 'Contacted'),
+        ('assessment', 'Assessment'),
+        ('gs', 'GS'),
+        ('on-hold', 'On Hold'),
+        ('offer', 'Offer'),
+        ('ucol', 'UCOL'),
+        ('coe', 'COE'),
+        ('visa-grant', 'Visa Grant')
+    ]
+
+    pipeline = []
+
+    for key, label in stages:
+        c.execute("""
+            SELECT leads.*, partners.company AS partner_company
+            FROM leads
+            LEFT JOIN partners ON leads.partner_id = partners.id
+            WHERE stage=%s
+        """, (key,))
+        items = c.fetchall()
+
+        pipeline.append((key, label, items))
 
     conn.close()
 
     return render_template(
         "dashboard.html",
-        total_leads=total_leads,
-        applications=applications,
-        coe=coe,
-        visa=visa,
-        coe_university=coe_university,
-        pipeline_data=pipeline_data
+        leads_count=leads_count,
+        apps_count=apps_count,
+        coe_count=coe_count,
+        visa_count=visa_count,
+        coe_summary=coe_summary,
+        pipeline=pipeline
     )
+
 
 # 📋 LEADS
 @app.route("/leads")
