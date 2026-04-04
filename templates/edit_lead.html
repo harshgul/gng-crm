@@ -11,7 +11,7 @@
         <select name="partner_id" id="partner" class="form-control">
             <option value="">-- None --</option>
             {% for partner in partners %}
-            <option value="{{ partner.id }}" {% if lead.partner_id == partner.id %}selected{% endif %}>{{ partner.name }} ({{ partner.company }})</option>
+            <option value="{{ partner.id }}" {% if lead.partner_id == partner.id %}selected{% endif %}>{{ partner.company }}</option>
             {% endfor %}
         </select>
     </div>
