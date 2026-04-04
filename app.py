@@ -201,7 +201,7 @@ def edit_lead(id):
     c.execute("SELECT * FROM leads WHERE id=%s", (id,))
     lead = c.fetchone()
     # fetch partners
-    c.execute("SELECT id, name FROM partners ORDER BY name ASC")
+    c.execute("SELECT id, name FROM partners ORDER BY company ASC")
     partners = c.fetchall()
     conn.close()
 
