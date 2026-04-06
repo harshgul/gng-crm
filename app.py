@@ -174,11 +174,11 @@ def leads():
     base_query = """
     SELECT 
         leads.*, 
-        channel_partners.name AS partner_name,
-        channel_partners.company AS partner_company
+        partners.name AS partner_name,
+        partners.company AS partner_company
     FROM leads
-    LEFT JOIN channel_partners 
-        ON leads.partner_id = channel_partners.id
+    LEFT JOIN partners 
+        ON leads.partner_id = partners.id
     WHERE 1=1
     """
 
@@ -190,7 +190,7 @@ def leads():
             leads.name LIKE %s OR 
             leads.email LIKE %s OR 
             leads.phone LIKE %s OR 
-            channel_partners.company LIKE %s
+            partners.company LIKE %s
         )
         """
         params.extend([f"%{search_query}%"] * 4)
