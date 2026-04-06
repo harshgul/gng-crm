@@ -164,24 +164,57 @@ def about():
 @app.route("/leads")
 @login_required
 def leads():
+    search_query = request.args.get("q")
+    selected_university = request.args.get("university")
+    selected_stage = request.args.get("stage")
+
     conn = get_conn(dict_cursor=True)
     c = conn.cursor()
-    c.execute("""
+
+    query = """
     SELECT leads.*, partners.name AS partner_name, partners.company AS partner_company
     FROM leads
     LEFT JOIN partners ON leads.partner_id = partners.id
-    ORDER BY leads.id ASC
-""")
+    WHERE 1=1
+    """
+
+    params = []
+
+    # 🔍 SEARCH (name, email, phone)
+    if search_query:
+        query += " AND (leads.name LIKE %s OR leads.email LIKE %s OR leads.phone LIKE %s)"
+        params.extend([
+            f"%{search_query}%",
+            f"%{search_query}%",
+            f"%{search_query}%"
+        ])
+
+    # 🎓 UNIVERSITY FILTER
+    if selected_university:
+        query += " AND leads.university = %s"
+        params.append(selected_university)
+
+    # 📊 STAGE FILTER
+    if selected_stage:
+        query += " AND leads.stage = %s"
+        params.append(selected_stage)
+
+    query += " ORDER BY leads.id ASC"
+
+    c.execute(query, params)
     leads = c.fetchall()
     conn.close()
 
-    return render_template("leads.html",
+    return render_template(
+        "leads.html",
         leads=leads,
         universities=UNIVERSITIES,
-        search_query="",
-        selected_university="",
-        selected_stage=""
+        search_query=search_query,
+        selected_university=selected_university,
+        selected_stage=selected_stage
     )
+
+
 
 # ➕ ADD LEAD
 @app.route("/add_lead", methods=["GET", "POST"])
