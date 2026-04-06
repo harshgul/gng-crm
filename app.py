@@ -184,22 +184,25 @@ def leads():
 
     params = []
 
-   if search_query:
+    # 🔍 Search (case-insensitive + company + partner name)
+    if search_query:
         base_query += """
         AND (
-        leads.name ILIKE %s OR 
-        leads.email ILIKE %s OR 
-        leads.phone ILIKE %s OR 
-        partners.company ILIKE %s OR
-        partners.name ILIKE %s
+            leads.name ILIKE %s OR 
+            leads.email ILIKE %s OR 
+            leads.phone ILIKE %s OR 
+            partners.company ILIKE %s OR
+            partners.name ILIKE %s
         )
         """
         params.extend([f"%{search_query}%"] * 5)
 
+    # 🎓 University filter
     if university:
         base_query += " AND leads.university = %s"
         params.append(university)
 
+    # 📊 Stage filter
     if stage:
         base_query += " AND leads.stage = %s"
         params.append(stage)
@@ -218,7 +221,6 @@ def leads():
         selected_university=university,
         selected_stage=stage
     )
-
 
 
 # ➕ ADD LEAD
