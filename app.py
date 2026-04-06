@@ -351,31 +351,50 @@ def team():
 
 
 # 📥 IMPORT LEADS
-@app.route("/import_leads", methods=["POST"])
+@app.route("/import-leads", methods=["GET", "POST"])
 @login_required
 def import_leads():
-    file = request.files["file"]
-    df = pd.read_excel(file)
+    if request.method == "POST":
+        file = request.files.get("file")
 
-    conn = get_conn()
-    c = conn.cursor()
+        if not file:
+            flash("No file uploaded", "danger")
+            return redirect(url_for("import_leads"))
 
-    for _, row in df.iterrows():
-        c.execute("""
-            INSERT INTO leads (name,email,phone,stage,notes,university)
-            VALUES (%s,%s,%s,%s,%s,%s)
-        """, (
-            row.get("name"),
-            row.get("email"),
-            row.get("phone"),
-            row.get("stage"),
-            row.get("notes", ""),
-            row.get("university", "")
-        ))
+        try:
+            import pandas as pd
+            df = pd.read_excel(file)
 
-    conn.commit()
-    conn.close()
-    return redirect(url_for("leads"))
+            conn = get_conn()
+            c = conn.cursor()
+
+            for _, row in df.iterrows():
+                c.execute("""
+                    INSERT INTO leads (name, email, phone, stage, notes)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (
+                    row.get("name"),
+                    row.get("email"),
+                    row.get("phone"),
+                    row.get("stage"),
+                    row.get("notes")
+                ))
+
+            conn.commit()
+            conn.close()
+
+            flash("Leads imported successfully!", "success")
+            return redirect(url_for("leads"))
+
+        except Exception as e:
+            print("IMPORT ERROR:", e)
+            flash(f"Error: {str(e)}", "danger")
+            return redirect(url_for("import_leads"))
+
+    # ✅ THIS FIXES YOUR ERROR
+    return render_template("import_leads.html")
+
+
 
 # 🛠 CREATE TABLES
 def create_tables():
