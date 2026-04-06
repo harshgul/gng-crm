@@ -394,6 +394,58 @@ def import_leads():
     # ✅ THIS FIXES YOUR ERROR
     return render_template("import_leads.html")
 
+#team 
+@app.route("/team")
+@login_required
+def team():
+    team_members = [
+        {
+            "name": "Raj Guleria",
+            "role": "CEO",
+            "image": "team/raj.jpg",
+            "bio": "Founder of Guleria & Guleria Consultants with over 10 years of experience in international education and student recruitment."
+        },
+        
+        {
+            "name": "Minakshi",
+            "role": "Senior Counsellor (Mohali Office)",
+            "image": "team/meenakshi.jpg",
+            "bio": "Student counselor at the Mohali branch, dedicated to helping students choose the right courses and career paths."
+        },
+        {
+            "name": "Harsh Guleria",
+            "role": "Managing Director (Operations)",
+            "image": "team/harsh.jpg",
+            "bio": "Oversees day-to-day operations and ensures smooth functioning across all branches with a focus on student success."
+        },
+        {
+            "name": "Saurabh",
+            "role": "Regional Manager (UP)",
+            "image": "team/saurabh.jpg",
+            "bio": "Responsible for managing operations in Uttar Pradesh and guiding students through their admission journey."
+        },
+        
+        {
+            "name": "Devansh",
+            "role": "GTE Compliance Officer (Kanpur)",
+            "image": "team/devansh.jpg",
+            "bio": "Ensures all applications meet Genuine Temporary Entrant (GTE) requirements and compliance standards."
+        },
+        {
+            "name": "Ankita",
+            "role": "Admissions Officer (Kanpur)",
+            "image": "team/ankita.jpg",
+            "bio": "Guides students in preparing strong applications and assists with admissions formalities."
+        },
+        {
+            "name": "Parul",
+            "role": "Admissions Officer (Lucknow)",
+            "image": "team/parul.jpg",
+            "bio": "Works closely with students to streamline the admissions process and provide accurate university guidance."
+        },
+       
+    ]
+    return render_template("team.html", team=team_members)
 
 
 # 🛠 CREATE TABLES
