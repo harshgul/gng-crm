@@ -343,11 +343,6 @@ def delete_partner(id):
 
     return redirect(url_for("partners"))
 
-# 👥 TEAM / DEV
-@app.route("/team")
-@login_required
-def team():
-    return render_template("team.html")
 
 
 # 📥 IMPORT LEADS
