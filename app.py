@@ -185,15 +185,16 @@ def leads():
     params = []
 
     if search_query:
-        base_query += """
-        AND (
-            leads.name LIKE %s OR 
-            leads.email LIKE %s OR 
-            leads.phone LIKE %s OR 
-            partners.company LIKE %s
-        )
-        """
-        params.extend([f"%{search_query}%"] * 4)
+    base_query += """
+    AND (
+        leads.name ILIKE %s OR 
+        leads.email ILIKE %s OR 
+        leads.phone ILIKE %s OR 
+        partners.company ILIKE %s OR
+        partners.name ILIKE %s
+    )
+    """
+    params.extend([f"%{search_query}%"] * 5)
 
     if university:
         base_query += " AND leads.university = %s"
