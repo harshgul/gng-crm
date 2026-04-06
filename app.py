@@ -260,27 +260,43 @@ def edit_lead(id):
     conn = get_conn(dict_cursor=True)
     c = conn.cursor()
 
-    if request.method == "POST":
-        data = request.form
+if request.method == "POST":
+    data = request.form
 
-        c.execute("""
-            UPDATE leads 
-            SET name=%s,email=%s,phone=%s,stage=%s,notes=%s,university=%s, partner_id=%s
-            WHERE id=%s
-        """, (
-            data.get("name"),
-            data.get("email"),
-            data.get("phone"),
-            data.get("stage"),
-            data.get("notes"),
-            data.get("university"),
-            data.get("partner_id"),
-            id
-        ))
+    # ✅ Handle partner_id properly
+    partner_id = data.get("partner_id")
+    if partner_id == "":
+        partner_id = None
+    else:
+        partner_id = int(partner_id)
 
-        conn.commit()
-        conn.close()
-        return redirect(url_for("leads"))
+    # ✅ Handle university (optional)
+    university = data.get("university") or None
+
+    c.execute("""
+        UPDATE leads 
+        SET name=%s,
+            email=%s,
+            phone=%s,
+            stage=%s,
+            notes=%s,
+            university=%s,
+            partner_id=%s
+        WHERE id=%s
+    """, (
+        data.get("name"),
+        data.get("email"),
+        data.get("phone"),
+        data.get("stage"),
+        data.get("notes"),
+        university,
+        partner_id,
+        id
+    ))
+
+    conn.commit()
+    conn.close()
+    return redirect(url_for("leads"))
 
     c.execute("SELECT * FROM leads WHERE id=%s", (id,))
     lead = c.fetchone()
