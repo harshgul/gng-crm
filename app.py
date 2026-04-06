@@ -257,55 +257,66 @@ def add_lead():
 @app.route("/edit_lead/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit_lead(id):
+
     conn = get_conn(dict_cursor=True)
     c = conn.cursor()
 
-if request.method == "POST":
-    data = request.form
+    if request.method == "POST":
+        data = request.form
 
-    # ✅ Handle partner_id properly
-    partner_id = data.get("partner_id")
-    if partner_id == "":
-        partner_id = None
-    else:
-        partner_id = int(partner_id)
+        # ✅ FIXED partner_id
+        partner_id = data.get("partner_id")
+        if partner_id == "":
+            partner_id = None
+        else:
+            partner_id = int(partner_id)
 
-    # ✅ Handle university (optional)
-    university = data.get("university") or None
+        university = data.get("university") or None
 
-    c.execute("""
-        UPDATE leads 
-        SET name=%s,
-            email=%s,
-            phone=%s,
-            stage=%s,
-            notes=%s,
-            university=%s,
-            partner_id=%s
-        WHERE id=%s
-    """, (
-        data.get("name"),
-        data.get("email"),
-        data.get("phone"),
-        data.get("stage"),
-        data.get("notes"),
-        university,
-        partner_id,
-        id
-    ))
+        c.execute("""
+            UPDATE leads 
+            SET name=%s,
+                email=%s,
+                phone=%s,
+                stage=%s,
+                notes=%s,
+                university=%s,
+                partner_id=%s
+            WHERE id=%s
+        """, (
+            data.get("name"),
+            data.get("email"),
+            data.get("phone"),
+            data.get("stage"),
+            data.get("notes"),
+            university,
+            partner_id,
+            id
+        ))
 
-    conn.commit()
-    conn.close()
-    return redirect(url_for("leads"))
+        conn.commit()
+        conn.close()
 
+        # ✅ THIS MUST BE INSIDE FUNCTION
+        return redirect(url_for("leads"))
+
+    # 👇 THIS PART ALSO INSIDE FUNCTION
     c.execute("SELECT * FROM leads WHERE id=%s", (id,))
     lead = c.fetchone()
-    # fetch partners
+
     c.execute("SELECT id, company FROM partners ORDER BY company ASC")
     partners = c.fetchall()
+
     conn.close()
 
-    return render_template("edit_lead.html", lead=lead, universities=UNIVERSITIES,partners=partners)
+    return render_template(
+        "edit_lead.html",
+        lead=lead,
+        universities=UNIVERSITIES,
+        partners=partners
+    )
+
+
 
 # ❌ DELETE LEAD
 @app.route("/delete_lead/<int:id>")
