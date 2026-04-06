@@ -168,38 +168,39 @@ def leads():
     university = request.args.get("university", "").strip()
     stage = request.args.get("stage", "").strip()
 
-    conn = get_conn(row_factory=True)
+    conn = get_conn(dict_cursor=True)
     c = conn.cursor()
 
     base_query = """
-    SELECT leads.*, channel_partners.company AS partner_company
+    SELECT 
+        leads.*, 
+        channel_partners.name AS partner_name,
+        channel_partners.company AS partner_company
     FROM leads
-    LEFT JOIN channel_partners ON leads.partner_id = channel_partners.id
+    LEFT JOIN channel_partners 
+        ON leads.partner_id = channel_partners.id
     WHERE 1=1
     """
 
     params = []
 
-    # Search filter
     if search_query:
         base_query += """
         AND (
-            leads.name LIKE ? OR 
-            leads.email LIKE ? OR 
-            leads.phone LIKE ? OR 
-            channel_partners.company LIKE ?
+            leads.name LIKE %s OR 
+            leads.email LIKE %s OR 
+            leads.phone LIKE %s OR 
+            channel_partners.company LIKE %s
         )
         """
         params.extend([f"%{search_query}%"] * 4)
 
-    # University filter
     if university:
-        base_query += " AND leads.university = ?"
+        base_query += " AND leads.university = %s"
         params.append(university)
 
-    # Stage filter ✅ NEW
     if stage:
-        base_query += " AND leads.stage = ?"
+        base_query += " AND leads.stage = %s"
         params.append(stage)
 
     base_query += " ORDER BY leads.id ASC"
@@ -214,10 +215,8 @@ def leads():
         search_query=search_query,
         universities=UNIVERSITIES,
         selected_university=university,
-        selected_stage=stage   # 👈 important
+        selected_stage=stage
     )
-
-
 
 
 
