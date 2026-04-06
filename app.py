@@ -154,7 +154,11 @@ def dashboard():
         coe_summary=coe_summary,
         pipeline=pipeline
     )
-
+#about
+@app.route("/about")
+@login_required   # optional, remove if you want it public
+def about():
+    return render_template("about.html")
 
 # 📋 LEADS
 @app.route("/leads")
