@@ -164,55 +164,60 @@ def about():
 @app.route("/leads")
 @login_required
 def leads():
-    search_query = request.args.get("q")
-    selected_university = request.args.get("university")
-    selected_stage = request.args.get("stage")
+    search_query = request.args.get("q", "").strip()
+    university = request.args.get("university", "").strip()
+    stage = request.args.get("stage", "").strip()
 
-    conn = get_conn(dict_cursor=True)
+    conn = get_conn(row_factory=True)
     c = conn.cursor()
 
-    query = """
-    SELECT leads.*, partners.name AS partner_name, partners.company AS partner_company
+    base_query = """
+    SELECT leads.*, channel_partners.company AS partner_company
     FROM leads
-    LEFT JOIN partners ON leads.partner_id = partners.id
+    LEFT JOIN channel_partners ON leads.partner_id = channel_partners.id
     WHERE 1=1
     """
 
     params = []
 
-    # 🔍 SEARCH (name, email, phone)
+    # Search filter
     if search_query:
-        query += " AND (leads.name LIKE %s OR leads.email LIKE %s OR leads.phone LIKE %s)"
-        params.extend([
-            f"%{search_query}%",
-            f"%{search_query}%",
-            f"%{search_query}%"
-        ])
+        base_query += """
+        AND (
+            leads.name LIKE ? OR 
+            leads.email LIKE ? OR 
+            leads.phone LIKE ? OR 
+            channel_partners.company LIKE ?
+        )
+        """
+        params.extend([f"%{search_query}%"] * 4)
 
-    # 🎓 UNIVERSITY FILTER
-    if selected_university:
-        query += " AND leads.university = %s"
-        params.append(selected_university)
+    # University filter
+    if university:
+        base_query += " AND leads.university = ?"
+        params.append(university)
 
-    # 📊 STAGE FILTER
-    if selected_stage:
-        query += " AND leads.stage = %s"
-        params.append(selected_stage)
+    # Stage filter ✅ NEW
+    if stage:
+        base_query += " AND leads.stage = ?"
+        params.append(stage)
 
-    query += " ORDER BY leads.id ASC"
+    base_query += " ORDER BY leads.id ASC"
 
-    c.execute(query, params)
+    c.execute(base_query, params)
     leads = c.fetchall()
     conn.close()
 
     return render_template(
         "leads.html",
         leads=leads,
-        universities=UNIVERSITIES,
         search_query=search_query,
-        selected_university=selected_university,
-        selected_stage=selected_stage
+        universities=UNIVERSITIES,
+        selected_university=university,
+        selected_stage=stage   # 👈 important
     )
+
+
 
 
 
