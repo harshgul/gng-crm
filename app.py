@@ -248,7 +248,7 @@ def add_lead():
 
         conn.commit()
         conn.close()
-        return redirect(url_for("leads"))
+        return redirect(url_for("leads") + f"#lead-{id}")
 
     return render_template("add_lead.html", universities=UNIVERSITIES,partners=partners)
 
@@ -298,7 +298,7 @@ def edit_lead(id):
         conn.close()
 
         # ✅ THIS MUST BE INSIDE FUNCTION
-        return redirect(url_for("leads"))
+        return redirect(url_for("leads")+ f"#lead-{id}")
 
     # 👇 THIS PART ALSO INSIDE FUNCTION
     c.execute("SELECT * FROM leads WHERE id=%s", (id,))
