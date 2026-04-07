@@ -128,19 +128,38 @@
 
 <!-- SCROLL SAVE/RESTORE SCRIPT -->
 <script>
-    document.querySelectorAll(".delete-btn").forEach(btn => {
-        btn.addEventListener("click", function () {
-            localStorage.setItem("leads_scroll", window.scrollY);
-        });
-    });
+window.addEventListener("load", function () {
 
-    window.addEventListener("load", function () {
-        let scrollPos = localStorage.getItem("leads_scroll");
-        if (scrollPos !== null) {
-            window.scrollTo(0, parseInt(scrollPos));
-            localStorage.removeItem("leads_scroll");
+    const hash = window.location.hash;
+
+    // ✅ If redirected from edit
+    if (hash) {
+        const el = document.querySelector(hash);
+        if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+            el.style.backgroundColor = "#d4edda";
+
+            setTimeout(() => {
+                el.style.backgroundColor = "";
+            }, 2000);
         }
+        return; // 🚨 IMPORTANT
+    }
+
+    // ✅ Only restore scroll if NO hash
+    let scrollPos = localStorage.getItem("leads_scroll");
+    if (scrollPos !== null) {
+        window.scrollTo(0, parseInt(scrollPos));
+        localStorage.removeItem("leads_scroll");
+    }
+});
+
+// Save scroll only for delete
+document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+        localStorage.setItem("leads_scroll", window.scrollY);
     });
+});
 </script>
 
 {% endblock %}
