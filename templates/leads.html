@@ -93,7 +93,7 @@
 
         <tbody id="lead-table-body">
             {% for lead in leads %}
-            <tr id="lead-{{ lead['id'] }}">
+            <tr id="lead-{{ lead.id }}">
                 <td>{{ loop.index }}</td>
                 <td>{{ lead["name"] }}</td>
                 <td>{{ lead["email"] }}</td>
