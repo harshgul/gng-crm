@@ -254,55 +254,64 @@ def add_lead():
 
 
 # ✏️ EDIT LEAD
-
-@app.route("/add_lead", methods=["GET", "POST"])
+@app.route("/edit_lead/<int:id>", methods=["GET", "POST"])
 @login_required
-def add_lead():
+def edit_lead(id):
 
     conn = get_conn(dict_cursor=True)
     c = conn.cursor()
 
-    # ✅ Fetch partners for dropdown
-    c.execute("SELECT id, company FROM partners ORDER BY company ASC")
-    partners = c.fetchall()
-
     if request.method == "POST":
         data = request.form
 
-        # ✅ handle empty partner_id
+        # ✅ FIXED partner_id
         partner_id = data.get("partner_id")
         if partner_id == "":
             partner_id = None
         else:
             partner_id = int(partner_id)
 
+        university = data.get("university") or None
+
         c.execute("""
-            INSERT INTO leads (name,email,phone,stage,notes,university,partner_id)
-            VALUES (%s,%s,%s,%s,%s,%s,%s)
+            UPDATE leads 
+            SET name=%s,
+                email=%s,
+                phone=%s,
+                stage=%s,
+                notes=%s,
+                university=%s,
+                partner_id=%s
+            WHERE id=%s
         """, (
             data.get("name"),
             data.get("email"),
             data.get("phone"),
             data.get("stage"),
             data.get("notes"),
-            data.get("university"),
-            partner_id
+            university,
+            partner_id,
+            id
         ))
 
         conn.commit()
-
-        # ✅ Get inserted ID (important for redirect)
-        c.execute("SELECT LASTVAL()")
-        new_id = c.fetchone()["lastval"]
-
         conn.close()
 
-        return redirect(url_for("leads") + f"#lead-{new_id}")
+        # ✅ THIS MUST BE INSIDE FUNCTION
+        return redirect(url_for("leads")+ f"#lead-{id}")
+
+    # 👇 THIS PART ALSO INSIDE FUNCTION
+    c.execute("SELECT * FROM leads WHERE id=%s", (id,))
+    lead = c.fetchone()
+
+    c.execute("SELECT id, company FROM partners ORDER BY company ASC")
+    partners = c.fetchall()
 
     conn.close()
 
     return render_template(
-        "add_lead.html",
+        "edit_lead.html",
+        lead=lead,
         universities=UNIVERSITIES,
         partners=partners
     )
