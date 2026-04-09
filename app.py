@@ -227,11 +227,23 @@ def leads():
 @app.route("/add_lead", methods=["GET", "POST"])
 @login_required
 def add_lead():
+
+    conn = get_conn(dict_cursor=True)
+    c = conn.cursor()
+
+    # ✅ FETCH PARTNERS (FIX 1)
+    c.execute("SELECT id, company FROM partners ORDER BY company ASC")
+    partners = c.fetchall()
+
     if request.method == "POST":
         data = request.form
 
-        conn = get_conn()
-        c = conn.cursor()
+        # ✅ Handle partner_id properly
+        partner_id = data.get("partner_id")
+        if partner_id == "":
+            partner_id = None
+        else:
+            partner_id = int(partner_id)
 
         c.execute("""
             INSERT INTO leads (name,email,phone,stage,notes,university,partner_id)
@@ -243,14 +255,27 @@ def add_lead():
             data.get("stage"),
             data.get("notes"),
             data.get("university"),
-            data.get("partner_id")
+            partner_id
         ))
 
         conn.commit()
-        conn.close()
-        return redirect(url_for("leads") + f"#lead-{id}")
 
-    return render_template("add_lead.html", universities=UNIVERSITIES,partners=partners)
+        # ✅ GET NEW ID (FIX 2)
+        c.execute("SELECT LASTVAL()")
+        new_id = c.fetchone()["lastval"]
+
+        conn.close()
+
+        return redirect(url_for("leads") + f"#lead-{new_id}")
+
+    conn.close()
+
+    return render_template(
+        "add_lead.html",
+        universities=UNIVERSITIES,
+        partners=partners
+    )
+
 
 
 # ✏️ EDIT LEAD
