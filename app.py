@@ -254,68 +254,58 @@ def add_lead():
 
 
 # ✏️ EDIT LEAD
-@app.route("/edit_lead/<int:id>", methods=["GET", "POST"])
+
+@app.route("/add_lead", methods=["GET", "POST"])
 @login_required
-def edit_lead(id):
+def add_lead():
 
     conn = get_conn(dict_cursor=True)
     c = conn.cursor()
 
+    # ✅ Fetch partners for dropdown
+    c.execute("SELECT id, company FROM partners ORDER BY company ASC")
+    partners = c.fetchall()
+
     if request.method == "POST":
         data = request.form
 
-        # ✅ FIXED partner_id
+        # ✅ handle empty partner_id
         partner_id = data.get("partner_id")
         if partner_id == "":
             partner_id = None
         else:
             partner_id = int(partner_id)
 
-        university = data.get("university") or None
-
         c.execute("""
-            UPDATE leads 
-            SET name=%s,
-                email=%s,
-                phone=%s,
-                stage=%s,
-                notes=%s,
-                university=%s,
-                partner_id=%s
-            WHERE id=%s
+            INSERT INTO leads (name,email,phone,stage,notes,university,partner_id)
+            VALUES (%s,%s,%s,%s,%s,%s,%s)
         """, (
             data.get("name"),
             data.get("email"),
             data.get("phone"),
             data.get("stage"),
             data.get("notes"),
-            university,
-            partner_id,
-            id
+            data.get("university"),
+            partner_id
         ))
 
         conn.commit()
+
+        # ✅ Get inserted ID (important for redirect)
+        c.execute("SELECT LASTVAL()")
+        new_id = c.fetchone()["lastval"]
+
         conn.close()
 
-        # ✅ THIS MUST BE INSIDE FUNCTION
-        return redirect(url_for("leads")+ f"#lead-{id}")
-
-    # 👇 THIS PART ALSO INSIDE FUNCTION
-    c.execute("SELECT * FROM leads WHERE id=%s", (id,))
-    lead = c.fetchone()
-
-    c.execute("SELECT id, company FROM partners ORDER BY company ASC")
-    partners = c.fetchall()
+        return redirect(url_for("leads") + f"#lead-{new_id}")
 
     conn.close()
 
     return render_template(
-        "edit_lead.html",
-        lead=lead,
+        "add_lead.html",
         universities=UNIVERSITIES,
         partners=partners
     )
-
 
 
 # ❌ DELETE LEAD
