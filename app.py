@@ -563,7 +563,8 @@ def create_tables():
         phone TEXT,
         stage TEXT,
         notes TEXT,
-        university TEXT
+        university TEXT,
+        partner_id INTEGER
     );
     """)
 
@@ -579,17 +580,20 @@ def create_tables():
     );
     """)
 
+    # ✅ CREATE ADMIN (HASHED PASSWORD)
+    from werkzeug.security import generate_password_hash
+
     c.execute("SELECT * FROM users WHERE username='admin'")
     if not c.fetchone():
-       hashed_password = generate_password_hash("admin123")
+        hashed_password = generate_password_hash("admin123")
 
-c.execute("""
-    INSERT INTO users (username, password, role, full_name)
-    VALUES (%s, %s, %s, %s)
-""", ('admin', hashed_password, 'admin', 'Admin User'))
+        c.execute("""
+            INSERT INTO users (username, password, role, full_name)
+            VALUES (%s, %s, %s, %s)
+        """, ('admin', hashed_password, 'admin', 'Admin User'))
 
-conn.commit()
-conn.close()
+    conn.commit()
+    conn.close()
 
 create_tables()
 
