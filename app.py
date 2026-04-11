@@ -17,7 +17,7 @@ login_manager.login_view = "login"
 UNIVERSITIES = [
     "APIC","CQU","Flinders","Macquarie University","QUT","Swinburne",
     "UC , Sydney Hills","UNISc, Adelaide","UTAS (Melb/Sydney)",
-    "VU (Brisbane/Sydney)","MIT","Curtin","Danford","Notre Dame","Other"
+    "VU (Brisbane/Sydney)","MIT","Curtin","Danford","Notre Dame","Kaplan pathways","Other"
 ]
 
 # ✅ DATABASE CONNECTION
@@ -31,6 +31,7 @@ def get_conn(dict_cursor=False):
         password=result.password,
         host=result.hostname,
         port=result.port,
+        sslmode="require" ,
         cursor_factory=RealDictCursor if dict_cursor else None
     )
 
