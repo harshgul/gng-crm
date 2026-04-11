@@ -588,8 +588,8 @@ c.execute("""
     VALUES (%s, %s, %s, %s)
 """, ('admin', hashed_password, 'admin', 'Admin User'))
 
-    conn.commit()
-    conn.close()
+conn.commit()
+conn.close()
 
 create_tables()
 
