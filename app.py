@@ -1,3 +1,4 @@
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 import os
@@ -74,7 +75,7 @@ def login():
         row = c.fetchone()
         conn.close()
 
-        if row and row[2] == password:
+        if row and check_password_hash(row[2], password):
             user = User(id=row[0], username=row[1], role=row[3], full_name=row[4])
             login_user(user)
             return redirect(url_for("dashboard"))
@@ -580,10 +581,12 @@ def create_tables():
 
     c.execute("SELECT * FROM users WHERE username='admin'")
     if not c.fetchone():
-        c.execute("""
-            INSERT INTO users (username, password, role, full_name)
-            VALUES ('admin', 'admin123', 'admin', 'Admin User')
-        """)
+       hashed_password = generate_password_hash("admin123")
+
+c.execute("""
+    INSERT INTO users (username, password, role, full_name)
+    VALUES (%s, %s, %s, %s)
+""", ('admin', hashed_password, 'admin', 'Admin User'))
 
     conn.commit()
     conn.close()
