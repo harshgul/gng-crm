@@ -129,7 +129,9 @@ def dashboard():
         ('offer', 'Offer'),
         ('ucol', 'UCOL'),
         ('coe', 'COE'),
-        ('visa-grant', 'Visa Grant')
+        ('visa-lodged', 'Visa Lodged'),
+        ('visa-grant', 'Visa Grant'),
+        ('visa-refused', 'Visa Refused)
     ]
 
     pipeline = []
