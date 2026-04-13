@@ -375,6 +375,36 @@ def delete_lead(id):
     conn.close()
     return redirect(url_for("leads"))
 
+
+#draft-save 
+@app.route("/save-draft", methods=["POST"])
+@login_required
+def save_draft():
+    data = request.json
+
+    conn = get_conn()
+    c = conn.cursor()
+
+    c.execute("""
+        INSERT INTO leads (name, email, phone, stage, notes, university, partner_id)
+        VALUES (%s,%s,%s,%s,%s,%s,%s)
+        RETURNING id
+    """, (
+        data.get("name"),
+        data.get("email"),
+        data.get("phone"),
+        data.get("stage", "new"),
+        data.get("notes"),
+        data.get("university"),
+        data.get("partner_id")
+    ))
+
+    lead_id = c.fetchone()[0]
+    conn.commit()
+    conn.close()
+
+    return {"status": "saved", "id": lead_id}
+
 # 🤝 PARTNERS
 @app.route("/partners")
 @login_required
