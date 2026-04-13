@@ -6,9 +6,12 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from urllib.parse import urlparse
 import pandas as pd
+from datetime import timedelta  # ✅ ADD THIS IMPORT
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
+
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=6)  # ✅ ADD HERE
 
 # LOGIN SETUP
 login_manager = LoginManager()
@@ -77,7 +80,7 @@ def login():
 
         if row and check_password_hash(row[2], password):
             user = User(id=row[0], username=row[1], role=row[3], full_name=row[4])
-            login_user(user)
+            login_user(user, remember=True)
             return redirect(url_for("dashboard"))
         else:
             flash("Invalid username or password", "danger")
