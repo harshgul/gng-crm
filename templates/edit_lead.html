@@ -25,6 +25,45 @@
         </select>
     </div>
 
+<script>
+let timeout = null;
+const leadId = "{{ lead.id }}";  // VERY IMPORTANT
+
+document.querySelectorAll("input, textarea, select").forEach(field => {
+    field.addEventListener("input", () => {
+        clearTimeout(timeout);
+
+        timeout = setTimeout(() => {
+            saveDraft();
+        }, 3000);
+    });
+});
+
+function saveDraft() {
+    const data = {
+        name: document.querySelector("[name=name]").value,
+        email: document.querySelector("[name=email]").value,
+        phone: document.querySelector("[name=phone]").value,
+        stage: document.querySelector("[name=stage]").value,
+        notes: document.querySelector("[name=notes]").value,
+        university: document.querySelector("[name=university]").value,
+        partner_id: document.querySelector("[name=partner_id]").value
+    };
+
+    fetch(`/update-draft/${leadId}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Auto-saved");
+    });
+}
+</script>
+
 
     <div class="col-md-6"><label class="form-label">Stage</label>
       <select name="stage" class="form-select">
