@@ -363,6 +363,40 @@ def edit_lead(id):
         partners=partners
     )
 
+# UPDATE Draft API
+@app.route("/update-draft/<int:id>", methods=["POST"])
+@login_required
+def update_draft(id):
+    data = request.json
+
+    conn = get_conn()
+    c = conn.cursor()
+
+    c.execute("""
+        UPDATE leads 
+        SET name=%s,
+            email=%s,
+            phone=%s,
+            stage=%s,
+            notes=%s,
+            university=%s,
+            partner_id=%s
+        WHERE id=%s
+    """, (
+        data.get("name"),
+        data.get("email"),
+        data.get("phone"),
+        data.get("stage"),
+        data.get("notes"),
+        data.get("university"),
+        data.get("partner_id"),
+        id
+    ))
+
+    conn.commit()
+    conn.close()
+
+    return {"status": "updated"}
 
 # ❌ DELETE LEAD
 @app.route("/delete_lead/<int:id>")
