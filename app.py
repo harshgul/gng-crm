@@ -216,14 +216,29 @@ def leads():
     c.execute(base_query, params)
     leads = c.fetchall()
     conn.close()
-
+ 
+    stages = [
+    'new',
+    'contacted',
+    'assessment',
+    'gs',
+    'on-hold',
+    'offer',
+    'ucol',
+    'coe',
+    'visa-lodged',
+    'visa-grant',
+    'visa-refused'
+     ]
+    
     return render_template(
         "leads.html",
         leads=leads,
         search_query=search_query,
         universities=UNIVERSITIES,
         selected_university=university,
-        selected_stage=stage
+        selected_stage=stage,
+        stages=stages
     )
 
 
