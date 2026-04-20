@@ -436,27 +436,6 @@ def delete_lead(id):
     return redirect(url_for("leads"))
 
 
-#draft-save 
-let leadId = null;
-
-function saveDraft() {
-    const data = { ... };
-
-    fetch("/save-draft", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(res => {
-        if (!leadId) {
-            leadId = res.id;
-            document.getElementById("lead_id").value = leadId;
-        }
-    });
-}
-
-
 
 # 🤝 PARTNERS
 @app.route("/partners")
