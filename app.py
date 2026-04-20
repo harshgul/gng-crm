@@ -267,25 +267,52 @@ def add_lead():
         else:
             partner_id = int(partner_id)
 
-        c.execute("""
-            INSERT INTO leads (name,email,phone,stage,notes,university,partner_id)
-            VALUES (%s,%s,%s,%s,%s,%s,%s)
-        """, (
-            data.get("name"),
-            data.get("email"),
-            data.get("phone"),
-            data.get("stage"),
-            data.get("notes"),
-            data.get("university"),
-            partner_id
-        ))
+    lead_id = data.get("lead_id")  # 👈 NEW LINE
 
-        conn.commit()
+    if lead_id:
+    # 🔁 UPDATE existing draft (from auto-save)
+    c.execute("""
+        UPDATE leads 
+        SET name=%s,
+            email=%s,
+            phone=%s,
+            stage=%s,
+            notes=%s,
+            university=%s,
+            partner_id=%s
+        WHERE id=%s
+    """, (
+        data.get("name"),
+        data.get("email"),
+        data.get("phone"),
+        data.get("stage"),
+        data.get("notes"),
+        data.get("university"),
+        partner_id,
+        int(lead_id)
+    ))
 
-        # ✅ GET NEW ID (FIX 2)
-        c.execute("SELECT LASTVAL()")
-        new_id = c.fetchone()["lastval"]
+    new_id = lead_id
 
+else:
+    # 🆕 Fresh insert (no auto-save used)
+    c.execute("""
+        INSERT INTO leads (name,email,phone,stage,notes,university,partner_id)
+        VALUES (%s,%s,%s,%s,%s,%s,%s)
+    """, (
+        data.get("name"),
+        data.get("email"),
+        data.get("phone"),
+        data.get("stage"),
+        data.get("notes"),
+        data.get("university"),
+        partner_id
+    ))
+
+    conn.commit()
+
+    c.execute("SELECT LASTVAL()")
+    new_id = c.fetchone()["lastval"]
         conn.close()
 
         return redirect(url_for("leads") + f"#lead-{new_id}")
@@ -411,33 +438,26 @@ def delete_lead(id):
 
 
 #draft-save 
-@app.route("/save-draft", methods=["POST"])
-@login_required
-def save_draft():
-    data = request.json
+let leadId = null;
 
-    conn = get_conn()
-    c = conn.cursor()
+function saveDraft() {
+    const data = { ... };
 
-    c.execute("""
-        INSERT INTO leads (name, email, phone, stage, notes, university, partner_id)
-        VALUES (%s,%s,%s,%s,%s,%s,%s)
-        RETURNING id
-    """, (
-        data.get("name"),
-        data.get("email"),
-        data.get("phone"),
-        data.get("stage", "new"),
-        data.get("notes"),
-        data.get("university"),
-        data.get("partner_id")
-    ))
+    fetch("/save-draft", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (!leadId) {
+            leadId = res.id;
+            document.getElementById("lead_id").value = leadId;
+        }
+    });
+}
 
-    lead_id = c.fetchone()[0]
-    conn.commit()
-    conn.close()
 
-    return {"status": "saved", "id": lead_id}
 
 # 🤝 PARTNERS
 @app.route("/partners")
