@@ -256,74 +256,74 @@ def add_lead():
     # ✅ FETCH PARTNERS (FIX 1)
     c.execute("SELECT id, company FROM partners ORDER BY company ASC")
     partners = c.fetchall()
-
-    if request.method == "POST":
-        data = request.form
-
-        # ✅ Handle partner_id properly
-        partner_id = data.get("partner_id")
-        if partner_id == "":
-            partner_id = None
-        else:
-            partner_id = int(partner_id)
-
-    lead_id = data.get("lead_id")  # 👈 NEW LINE
-
-    if lead_id:
-    # 🔁 UPDATE existing draft (from auto-save)
-    c.execute("""
-        UPDATE leads 
-        SET name=%s,
-            email=%s,
-            phone=%s,
-            stage=%s,
-            notes=%s,
-            university=%s,
-            partner_id=%s
-        WHERE id=%s
-    """, (
-        data.get("name"),
-        data.get("email"),
-        data.get("phone"),
-        data.get("stage"),
-        data.get("notes"),
-        data.get("university"),
-        partner_id,
-        int(lead_id)
-    ))
-
-    new_id = lead_id
-
-else:
-    # 🆕 Fresh insert (no auto-save used)
-    c.execute("""
-        INSERT INTO leads (name,email,phone,stage,notes,university,partner_id)
-        VALUES (%s,%s,%s,%s,%s,%s,%s)
-    """, (
-        data.get("name"),
-        data.get("email"),
-        data.get("phone"),
-        data.get("stage"),
-        data.get("notes"),
-        data.get("university"),
-        partner_id
-    ))
-
-    conn.commit()
-
-    c.execute("SELECT LASTVAL()")
-    new_id = c.fetchone()["lastval"]
+    
+        if request.method == "POST":
+            data = request.form
+    
+            # ✅ Handle partner_id properly
+            partner_id = data.get("partner_id")
+            if partner_id == "":
+                partner_id = None
+            else:
+                partner_id = int(partner_id)
+    
+        lead_id = data.get("lead_id")  # 👈 NEW LINE
+    
+        if lead_id:
+        # 🔁 UPDATE existing draft (from auto-save)
+            c.execute("""
+             UPDATE leads 
+             SET name=%s,
+                email=%s,
+                phone=%s,
+                stage=%s,
+                notes=%s,
+                university=%s,
+                partner_id=%s
+            WHERE id=%s
+            """, (
+            data.get("name"),
+            data.get("email"),
+            data.get("phone"),
+            data.get("stage"),
+            data.get("notes"),
+            data.get("university"),
+            partner_id,
+            int(lead_id)
+        ))
+    
+        new_id = lead_id
+    
+      else:
+        # 🆕 Fresh insert (no auto-save used)
+         c.execute("""
+            INSERT INTO leads (name,email,phone,stage,notes,university,partner_id)
+            VALUES (%s,%s,%s,%s,%s,%s,%s)
+         """, (
+            data.get("name"),
+            data.get("email"),
+            data.get("phone"),
+            data.get("stage"),
+            data.get("notes"),
+            data.get("university"),
+            partner_id
+         ))
+    
+         conn.commit()
+    
+         c.execute("SELECT LASTVAL()")
+         new_id = c.fetchone()["lastval"]
+            conn.close()
+    
+            return redirect(url_for("leads") + f"#lead-{new_id}")
+    
         conn.close()
-
-        return redirect(url_for("leads") + f"#lead-{new_id}")
-
-    conn.close()
-
-    return render_template(
-        "add_lead.html",
-        universities=UNIVERSITIES,
-        partners=partners
-    )
+    
+        return render_template(
+            "add_lead.html",
+            universities=UNIVERSITIES,
+            partners=partners
+        )
 
 
 
