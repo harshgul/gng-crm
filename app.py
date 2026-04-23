@@ -300,7 +300,8 @@ def add_lead():
                 data.get("stage"),
                 data.get("notes"),
                 data.get("university"),
-                partner_id
+                partner_id,
+                data.get("dob") or None 
             ))
 
             conn.commit()
@@ -354,7 +355,8 @@ def edit_lead(id):
                 stage=%s,
                 notes=%s,
                 university=%s,
-                partner_id=%s
+                partner_id=%s,
+                dob=%s,
             WHERE id=%s
         """, (
             data.get("name"),
@@ -364,6 +366,7 @@ def edit_lead(id):
             data.get("notes"),
             university,
             partner_id,
+            data.get("dob") or None, 
             id
         ))
 
