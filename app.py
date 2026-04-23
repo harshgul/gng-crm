@@ -291,8 +291,8 @@ def add_lead():
 
         else:
             c.execute("""
-                INSERT INTO leads (name,email,phone,stage,notes,university,partner_id)
-                VALUES (%s,%s,%s,%s,%s,%s,%s)
+                INSERT INTO leads (name,email,phone,stage,notes,university,partner_id,dob)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
             """, (
                 data.get("name"),
                 data.get("email"),
