@@ -356,7 +356,7 @@ def edit_lead(id):
                 notes=%s,
                 university=%s,
                 partner_id=%s,
-                dob=%s,
+                dob=%s
             WHERE id=%s
         """, (
             data.get("name"),
