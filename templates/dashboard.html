@@ -42,10 +42,10 @@
       <div class="accordion-body">
         {% if items %}
         <table class="table table-sm">
-          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>University</th><th>Channel partner</th><th></th><th></th></tr></thead>
+          <thead><tr><th>Name</th><th>DOB</th><th>Email</th><th>Phone</th><th>University</th><th>Channel partner</th><th></th><th></th></tr></thead>
           <tbody>
           {% for lead in items %}
-          <tr><td>{{ lead['name'] }}</td><td>{{ lead['email'] }}</td><td>{{ lead['phone'] }}</td><td>{{ lead['university'] or "Not Assigned" }}</td><td>{{ lead['partner_company'] }}
+          <tr><td>{{ lead['name'] }}</td><td>{{ lead['dob'] }}</td><td>{{ lead['email'] }}</td><td>{{ lead['phone'] }}</td><td>{{ lead['university'] or "Not Assigned" }}</td><td>{{ lead['partner_company'] }}
           </td>
               <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('edit_lead', id=lead['id']) }}">Open</a></td></tr>
           {% endfor %}
