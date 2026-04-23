@@ -84,6 +84,7 @@
             <tr>
                 <th>S.No.</th>
                 <th>Name</th>
+                <th>DOB </th>
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Stage</th>
@@ -99,6 +100,7 @@
             <tr id="lead-{{ lead.id }}">
                 <td>{{ loop.index }}</td>
                 <td>{{ lead["name"] }}</td>
+                <td>{{ lead.dob }}</td>
                 <td>{{ lead["email"] }}</td>
                 <td>{{ lead["phone"] }}</td>
                 <td>{{ lead["stage"] }}</td>
