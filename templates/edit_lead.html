@@ -71,7 +71,7 @@ function saveDraft() {
 
     <div class="col-md-6"><label class="form-label">Stage</label>
       <select name="stage" class="form-select">
-        {% for key,label in [('new','New'),('contacted','Contacted'),('assessment','Assessment'),('gs','GS'),('on-hold','On-hold'),('offer','Offer'),('ucol', 'UCOL'),('coe','COE'),('visa-lodged','Visa Lodged'),('visa-grant','Visa Grant'),('visa-refused','Visa Refused')] %}
+        {% for key,label in [('new','New'),('contacted','Contacted'),('assessment','Assessment'),('gs','GS'),('on-hold','On-hold'),('case-dropped','Case Dropped'),('offer','Offer'),('ucol', 'UCOL'),('coe','COE'),('visa-lodged','Visa Lodged'),('visa-grant','Visa Grant'),('visa-refused','Visa Refused')] %}
           <option value="{{ key }}" {% if lead['stage']==key %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
       </select></div>
