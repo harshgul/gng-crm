@@ -8,8 +8,8 @@ from urllib.parse import urlparse
 import pandas as pd
 from datetime import timedelta # ✅ ADD THIS IMPORT
 from docx import Document
-from flask import send_file 
-from io import BytesIO
+from flask import send_file, request 
+from io 
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -630,38 +630,92 @@ def team():
     return render_template("team.html", team=team_members)
 
 
-@app.route("/export-lead-doc/<int:id>")
+@app.route("/export-doc-list")
 @login_required
-def export_lead_doc(id):
+def export_doc_list():
+
+    search_query = request.args.get("q", "").strip()
+    university = request.args.get("university", "").strip()
+    stage = request.args.get("stage", "").strip()
+
     conn = get_conn(dict_cursor=True)
     c = conn.cursor()
 
-    c.execute("SELECT * FROM leads WHERE id=%s", (id,))
-    lead = c.fetchone()
+    base_query = """
+    SELECT 
+        leads.*, 
+        partners.company AS partner_company
+    FROM leads
+    LEFT JOIN partners ON leads.partner_id = partners.id
+    WHERE 1=1
+    """
+
+    params = []
+
+    if search_query:
+        base_query += """
+        AND (
+            leads.name ILIKE %s OR 
+            leads.email ILIKE %s OR 
+            leads.phone ILIKE %s OR 
+            partners.company ILIKE %s
+        )
+        """
+        params.extend([f"%{search_query}%"] * 4)
+
+    if university:
+        base_query += " AND leads.university = %s"
+        params.append(university)
+
+    if stage:
+        base_query += " AND leads.stage = %s"
+        params.append(stage)
+
+    base_query += " ORDER BY leads.id ASC"
+
+    c.execute(base_query, params)
+    leads = c.fetchall()
     conn.close()
 
+    # 📄 Create DOC
     doc = Document()
-    doc.add_heading('Lead Details', 0)
+    doc.add_heading('Filtered Leads Report', 0)
 
-    doc.add_paragraph(f"Name: {lead['name']}")
-    doc.add_paragraph(f"DOB: {lead['dob']}")
-    doc.add_paragraph(f"Email: {lead['email']}")
-    doc.add_paragraph(f"Phone: {lead['phone']}")
-    doc.add_paragraph(f"Stage: {lead['stage']}")
-    doc.add_paragraph(f"University: {lead['university']}")
-    doc.add_paragraph(f"Notes: {lead['notes']}")
+    doc.add_paragraph(f"Total Leads: {len(leads)}")
+    doc.add_paragraph(f"Filters Applied → Search: {search_query}, University: {university}, Stage: {stage}")
+    doc.add_paragraph(" ")
 
-    file_stream = BytesIO()
+    # 📊 Table format (MUCH BETTER than plain text)
+    table = doc.add_table(rows=1, cols=8)
+    headers = ["Name", "DOB", "Email", "Phone", "University", "Stage", "Partner", "Notes"]
+
+    for i, h in enumerate(headers):
+        table.rows[0].cells[i].text = h
+
+    for lead in leads:
+        row_cells = table.add_row().cells
+        row_cells[0].text = str(lead.get("name", ""))
+        row_cells[1].text = str(lead.get("dob", ""))
+        row_cells[2].text = str(lead.get("email", ""))
+        row_cells[3].text = str(lead.get("phone", ""))
+        row_cells[4].text = str(lead.get("university", ""))
+        row_cells[5].text = str(lead.get("stage", ""))
+        row_cells[6].text = str(lead.get("partner_company", ""))
+        row_cells[7].text = str(lead.get("notes", ""))
+
+    # Save file
+    file_stream = io.BytesIO()
     doc.save(file_stream)
     file_stream.seek(0)
 
-    return send_file(file_stream,
-                     as_attachment=True,
-                     download_name=f"lead_{id}.docx",
-                     mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    return send_file(
+        file_stream,
+        as_attachment=True,
+        download_name="filtered_leads.docx",
+        mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
 
 
-# 🛠 CREATE TABLES
 def create_tables():
     conn = get_conn()
     c = conn.cursor()
