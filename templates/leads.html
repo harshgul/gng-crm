@@ -69,14 +69,16 @@
             <a href="{{ url_for('leads') }}" class="btn btn-secondary w-100">Reset</a>
         {% endif %}
     </div>
+    
+     <!-- Add New Lead -->
+    <div class="mb-3">
+        <a href="{{ url_for('add_lead') }}" class="btn btn-success">+ Add Lead</a>
+    </div>
 
 </form>
 </div>
 
-    <!-- Add New Lead -->
-    <div class="mb-3">
-        <a href="{{ url_for('add_lead') }}" class="btn btn-success">+ Add Lead</a>
-    </div>
+   
 
     <!-- Leads Table -->
     <div class="table-responsive">
