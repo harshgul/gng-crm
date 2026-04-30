@@ -130,7 +130,11 @@
 
     </table>
 </div>
-    
+
+<a href="{{ url_for('export_doc_list', q=search_query, university=selected_university, stage=selected_stage) }}" 
+   class="btn btn-success">
+   Export Filtered Leads
+</a>
 
 <!-- SCROLL SAVE/RESTORE SCRIPT -->
 <script>
