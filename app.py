@@ -1,5 +1,5 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import Flask, render_template, request, redirect, url_for, flash , make_response
+from flask import Flask, render_template, request, redirect, url_for, flash 
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 import os
 import psycopg2
@@ -7,7 +7,8 @@ from psycopg2.extras import RealDictCursor
 from urllib.parse import urlparse
 import pandas as pd
 from datetime import timedelta # ✅ ADD THIS IMPORT
-from xhtml12pdf import pisa
+from docx import Document
+from flask import send_file 
 from io import BytesIO
 
 app = Flask(__name__)
@@ -629,32 +630,36 @@ def team():
     return render_template("team.html", team=team_members)
 
 
-@app.route("/export-lead/<int:id>")
+@app.route("/export-lead-doc/<int:id>")
 @login_required
-def export_lead(id):
+def export_lead_doc(id):
     conn = get_conn(dict_cursor=True)
     c = conn.cursor()
 
-    c.execute("""
-        SELECT leads.*, partners.company AS partner_company
-        FROM leads
-        LEFT JOIN partners ON leads.partner_id = partners.id
-        WHERE leads.id=%s
-    """, (id,))
-
+    c.execute("SELECT * FROM leads WHERE id=%s", (id,))
     lead = c.fetchone()
     conn.close()
 
-    html = render_template("lead_pdf.html", lead=lead)
+    doc = Document()
+    doc.add_heading('Lead Details', 0)
 
-    pdf = BytesIO()
-    pisa.CreatePDF(BytesIO(html.encode("utf-8")), pdf)
+    doc.add_paragraph(f"Name: {lead['name']}")
+    doc.add_paragraph(f"DOB: {lead['dob']}")
+    doc.add_paragraph(f"Email: {lead['email']}")
+    doc.add_paragraph(f"Phone: {lead['phone']}")
+    doc.add_paragraph(f"Stage: {lead['stage']}")
+    doc.add_paragraph(f"University: {lead['university']}")
+    doc.add_paragraph(f"Notes: {lead['notes']}")
 
-    response = make_response(pdf.getvalue())
-    response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'attachment; filename=lead_{id}.pdf'
+    file_stream = BytesIO()
+    doc.save(file_stream)
+    file_stream.seek(0)
 
-    return response
+    return send_file(file_stream,
+                     as_attachment=True,
+                     download_name=f"lead_{id}.docx",
+                     mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+
 
 # 🛠 CREATE TABLES
 def create_tables():
