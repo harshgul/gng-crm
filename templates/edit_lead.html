@@ -31,39 +31,65 @@
 
 <script>
 let timeout = null;
-const leadId = "{{ lead.id }}";  // VERY IMPORTANT
+const leadId = "{{ lead.id }}";
 
-document.querySelectorAll("input, textarea, select").forEach(field => {
-    field.addEventListener("input", () => {
-        clearTimeout(timeout);
-
-        timeout = setTimeout(() => {
-            saveDraft();
-        }, 3000);
-    });
-});
-
-function saveDraft() {
-    const data = {
+function collectFormData() {
+    return {
         name: document.querySelector("[name=name]").value,
         email: document.querySelector("[name=email]").value,
         phone: document.querySelector("[name=phone]").value,
+        dob: document.querySelector("[name=dob]").value,
         stage: document.querySelector("[name=stage]").value,
         notes: document.querySelector("[name=notes]").value,
         university: document.querySelector("[name=university]").value,
         partner_id: document.querySelector("[name=partner_id]").value
     };
+}
+
+let lastSavedData = JSON.stringify(collectFormData());
+
+document.querySelectorAll("input, textarea, select").forEach(field => {
+
+    field.addEventListener("change", triggerAutoSave);
+
+    field.addEventListener("keyup", () => {
+        clearTimeout(timeout);
+
+        timeout = setTimeout(() => {
+            triggerAutoSave();
+        }, 5000); // save after 5 sec idle typing
+    });
+
+});
+
+function triggerAutoSave() {
+
+    const currentData = JSON.stringify(collectFormData());
+
+    // Prevent unnecessary saves
+    if (currentData === lastSavedData) {
+        return;
+    }
 
     fetch(`/update-draft/${leadId}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify(data)
+        body: currentData
     })
-    .then(res => res.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Autosave failed");
+        }
+        return response.json();
+    })
     .then(data => {
-        console.log("Auto-saved");
+        lastSavedData = currentData;
+        console.log("Auto-saved successfully");
+    })
+    .catch(error => {
+        console.error("Autosave error:", error);
     });
 }
 </script>
