@@ -15,7 +15,7 @@ app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=6)  # ✅ ADD HERE
-
+app.config['SESSION_REFRESH_EACH_REQUEST'] = True 
 # LOGIN SETUP
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -39,7 +39,11 @@ def get_conn(dict_cursor=False):
         host=result.hostname,
         port=result.port,
         sslmode="require" ,
-        cursor_factory=RealDictCursor if dict_cursor else None
+        cursor_factory=RealDictCursor if dict_cursor else None,
+        keepalives=1,
+        keepalives_idle=30,
+        keepalives_interval=10,
+        keepalives_count=5
     )
 
 # 👤 USER CLASS
@@ -83,6 +87,7 @@ def login():
 
         if row and check_password_hash(row[2], password):
             user = User(id=row[0], username=row[1], role=row[3], full_name=row[4])
+            session.permanent = True 
             login_user(user, remember=True)
             return redirect(url_for("dashboard"))
         else:
