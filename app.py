@@ -337,6 +337,7 @@ def add_lead():
     )
 
 
+
 # ✏️ EDIT LEAD
 @app.route("/edit_lead/<int:id>", methods=["GET", "POST"])
 @login_required
@@ -401,6 +402,7 @@ def edit_lead(id):
         universities=UNIVERSITIES,
         partners=partners
     )
+
 
 # UPDATE Draft API
 @app.route("/update-draft/<int:id>", methods=["POST"])
