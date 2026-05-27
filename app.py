@@ -384,8 +384,17 @@ def edit_lead(id):
         conn.commit()
         conn.close()
 
-        # ✅ THIS MUST BE INSIDE FUNCTION
-        return redirect(url_for("leads")+ f"#lead-{id}")
+        # ✅ Preserve filters/search after update
+        query_string = request.query_string.decode("utf-8")
+
+        redirect_url = url_for("leads")
+
+        if query_string:
+            redirect_url += "?" + query_string
+
+        redirect_url += f"#lead-{id}"
+
+        return redirect(redirect_url)
 
     # 👇 THIS PART ALSO INSIDE FUNCTION
     c.execute("SELECT * FROM leads WHERE id=%s", (id,))
