@@ -457,8 +457,15 @@ def delete_lead(id):
     c.execute("DELETE FROM leads WHERE id=%s", (id,))
     conn.commit()
     conn.close()
-    return redirect(url_for("leads"))
 
+    query_string = request.query_string.decode("utf-8")
+
+    redirect_url = url_for("leads")
+
+    if query_string:
+        redirect_url += "?" + query_string
+
+    return redirect(redirect_url)
 
 
 # 🤝 PARTNERS
