@@ -201,4 +201,47 @@ document.querySelectorAll(".delete-btn").forEach(btn => {
 });
 </script>
 
+<script>
+document.getElementById("select-all").addEventListener("change", function() {
+
+    document.querySelectorAll(".lead-checkbox").forEach(cb => {
+        cb.checked = this.checked;
+    });
+
+});
+
+document.getElementById("bulk-delete-btn").addEventListener("click", function() {
+
+    const selected = [];
+
+    document.querySelectorAll(".lead-checkbox:checked").forEach(cb => {
+        selected.push(parseInt(cb.value));
+    });
+
+    if(selected.length === 0){
+        alert("No leads selected.");
+        return;
+    }
+
+    if(!confirm(`Delete ${selected.length} leads?`)){
+        return;
+    }
+
+    fetch("/bulk_delete_leads", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            lead_ids: selected
+        })
+    })
+    .then(res => res.json())
+    .then(() => {
+        location.reload();
+    });
+
+});
+</script>
+
 {% endblock %}
