@@ -64,7 +64,10 @@
     <!-- Buttons -->
     <div class="col-12 col-md-2 d-flex gap-2">
         <button type="submit" class="btn btn-primary w-100">Filter</button>
-
+        <button id="bulk-delete-btn"
+                class="btn btn-danger mb-3">
+            Delete Selected
+        </button>    
         {% if search_query or selected_university or selected_stage %}
             <a href="{{ url_for('leads') }}" class="btn btn-secondary w-100">Reset</a>
         {% endif %}
@@ -85,6 +88,9 @@
      <table class="table table-bordered table-hover">
         <thead class="thead-dark">
             <tr>
+                <th>
+                    <input type="checkbox" id="select-all">
+                </th>
                 <th>S.No.</th>
                 <th>Name</th>
                 <th>DOB </th>
@@ -101,7 +107,14 @@
         <tbody id="lead-table-body">
             {% for lead in leads %}
             <tr id="lead-{{ lead.id }}">
+                
                 <td>{{ loop.index }}</td>
+                <td>
+                    <input type="checkbox"
+                           class="lead-checkbox"
+                           value="{{ lead.id }}">
+                </td>
+               
                 <td>{{ lead["name"] }}</td>
                 <td>{{ lead.dob }}</td>
                 <td>{{ lead["email"] }}</td>
