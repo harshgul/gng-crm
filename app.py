@@ -176,6 +176,31 @@ def dashboard():
 def about():
     return render_template("about.html")
 
+
+@app.route("/bulk_delete_leads", methods=["POST"])
+@login_required
+def bulk_delete_leads():
+
+    lead_ids = request.json.get("lead_ids", [])
+
+    if lead_ids:
+
+        conn = get_conn()
+        c = conn.cursor()
+
+        c.execute(
+            "DELETE FROM leads WHERE id = ANY(%s)",
+            (lead_ids,)
+        )
+
+        conn.commit()
+        conn.close()
+
+    return {"success": True}
+
+
+
+
 # 📋 LEADS
 @app.route("/leads")
 @login_required
