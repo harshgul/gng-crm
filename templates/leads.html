@@ -64,15 +64,16 @@
     <!-- Buttons -->
     <div class="col-12 col-md-2 d-flex gap-2">
         <button type="submit" class="btn btn-primary w-100">Filter</button>
-        <button id="bulk-delete-btn"
-                class="btn btn-danger mb-3">
-            Delete Selected
-        </button>    
+        
         {% if search_query or selected_university or selected_stage %}
             <a href="{{ url_for('leads') }}" class="btn btn-secondary w-100">Reset</a>
         {% endif %}
     </div>
-    
+
+        <button id="bulk-delete-btn"
+                class="btn btn-danger mb-3">
+            Delete Selected
+        </button>    
      <!-- Add New Lead -->
     <div class="mb-3">
         <a href="{{ url_for('add_lead') }}" class="btn btn-success">+ Add Lead</a>
