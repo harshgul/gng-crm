@@ -108,12 +108,13 @@
 
         <tbody id="lead-table-body">
             {% for lead in leads %}
-                 <td>
+                
+            <tr id="lead-{{ lead.id }}">
+                <td>
                     <input type="checkbox"
                            class="lead-checkbox"
                            value="{{ lead.id }}">
                 </td>
-            <tr id="lead-{{ lead.id }}">
                 <td>{{ loop.index }}</td>
                 <td>{{ lead["name"] }}</td>
                 <td>{{ lead.dob }}</td>
