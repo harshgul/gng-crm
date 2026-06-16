@@ -92,13 +92,14 @@
                 <th>
                     <input type="checkbox" id="select-all">
                 </th>
+                <th>o</th>
                 <th>S.No.</th>
                 <th>Name</th>
                 <th>DOB </th>
+                <th>Partner</th>
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Stage</th>
-                <th>Partner</th>
                 <th>University</th>
                 <th>Notes</th>
                 <th>Actions</th>
@@ -116,16 +117,16 @@
                 <td>{{ loop.index }}</td>
                 <td>{{ lead["name"] }}</td>
                 <td>{{ lead.dob }}</td>
-                <td>{{ lead["email"] }}</td>
-                <td>{{ lead["phone"] }}</td>
-                <td>{{ lead["stage"] }}</td>
                 <td>
                        {% if lead.partner_name %}
                           {{ lead.partner_name }} ({{ lead.partner_company }})
                        {% else %}
                            Direct
                        {% endif %}
-                 </td>
+                </td>
+                <td>{{ lead["email"] }}</td>
+                <td>{{ lead["phone"] }}</td>
+                <td>{{ lead["stage"] }}</td>
                 <td>{{ lead["university"] or "Not Assigned" }}</td>
                 <td>{{ lead["notes"] or '' }}</td>
                 <td>
